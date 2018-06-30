@@ -1,0 +1,39 @@
+#!/bin/bash
+
+NIX_DISK_IMAGE=$(readlink -f ${NIX_DISK_IMAGE:-./tdesktop.qcow2})
+
+if ! test -e "$NIX_DISK_IMAGE"; then
+    qemu-img create -f qcow2 "$NIX_DISK_IMAGE" 512M || exit 1
+fi
+
+# Create a directory for storing temporary data of the running VM.
+if [ -z "$TMPDIR" -o -z "$USE_TMPDIR" ]; then
+    TMPDIR=$(mktemp -d nix-vm.XXXXXXXXXX --tmpdir)
+fi
+
+# Create a directory for exchanging data with the VM.
+mkdir -p $TMPDIR/xchg
+cd $TMPDIR
+
+NIX_SYSTEM="NIX_SYSTEM_PLACEHOLDER"
+
+# Start QEMU.
+qemu-system-x86_64 -enable-kvm \
+    -name tdesktop \
+    -m 1024 \
+    -smp 1 \
+    -device virtio-rng-pci \
+    -net nic,netdev=user.0,model=virtio -netdev user,id=user.0${QEMU_NET_OPTS:+,$QEMU_NET_OPTS} \
+    -spice port=5900,addr=127.0.0.1,disable-ticketing,image-compression=off,seamless-migration=on \
+    -sandbox on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny \
+    -virtfs local,path=/nix/store,security_model=none,mount_tag=store,readonly \
+    -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
+    -virtfs local,path=${SHARED_DIR:-$TMPDIR/xchg},security_model=none,mount_tag=shared \
+    -drive index=0,id=drive$((0 + 1)),file=$NIX_DISK_IMAGE,cache=writeback,werror=report,if=virtio \
+    -device virtio-serial-pci,id=virtio-serial0 \
+    -chardev spicevmc,id=charchannel0,name=vdagent \
+    -device virtserialport,bus=virtio-serial0.0,nr=1,chardev=charchannel0,id=channel0,name=com.redhat.spice.0 \
+    -kernel ${NIX_SYSTEM}/kernel \
+    -initrd ${NIX_SYSTEM}/initrd \
+    -append "$(cat ${NIX_SYSTEM}/kernel-params) init=${NIX_SYSTEM}/init regInfo=/nix/store/622pn30mg7z4knkrqsh3acrjyaiyq6sr-closure-info/registration" \
+    -device qxl-vga,vgamem_mb=256 #-display gtk
