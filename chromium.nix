@@ -1,7 +1,7 @@
 {pkgs, ...}:
 {
   imports = [
-    <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
+    <nixpkgs/nixos/modules/installer/cd-dvd/installation-cd-minimal.nix>
     <chromium-config.nix>
     <base.nix>
   ];
