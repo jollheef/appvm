@@ -9,6 +9,7 @@ if [[ "$1" == "build" && "$2" != "" ]]; then
     mkdir -p bin
     sed "s;NIX_SYSTEM_PLACEHOLDER;${NIX_SYSTEM};" qemu/qemu.template > bin/appvm.${2}
     sed -i "s;NAME_PLACEHOLDER;${2};" bin/appvm.${2}
+    sed -i "s;NIX_DISK_IMAGE_PLACEHOLDER;${APPVM_PATH}/qemu/qcow2/${2}.qcow2;" bin/appvm.${2}
     chmod +x bin/appvm.${2}
     unlink result
 else

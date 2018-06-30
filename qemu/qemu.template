@@ -2,7 +2,7 @@
 
 NAME=NAME_PLACEHOLDER
 
-NIX_DISK_IMAGE=$(readlink -f ${NIX_DISK_IMAGE:-./${NAME}.qcow2})
+NIX_DISK_IMAGE=NIX_DISK_IMAGE_PLACEHOLDER
 
 if ! test -e "$NIX_DISK_IMAGE"; then
     qemu-img create -f qcow2 "$NIX_DISK_IMAGE" 512M || exit 1
