@@ -42,3 +42,7 @@ Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a
     $ ls appvm/share/chromium
     foo.tar.gz
     bar.tar.gz
+
+## Close VM
+
+    $ pkill.... :)
