@@ -1,4 +1,8 @@
 {
+  imports = [
+    <nix/monitor.nix>
+  ];
+
   system.nixos.stateVersion = "18.03";
 
   services.xserver = {

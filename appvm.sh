@@ -19,6 +19,17 @@ if [[ "$1" == "build" && "$2" != "" ]]; then
     chmod +x ${VM_BIN_PATH}
     chmod +x bin/appvm.${2}
     unlink result
+elif [[ "$1" == "generate-resolution" && "$2" != "" && "$3" != "" ]]; then
+    MONITOR_SIZE="$(xrandr | grep mm | head -n 1 | awk '{ print $(NF-2) " " $(NF) }' | sed 's/mm//g')"
+    CVT="$(cvt ${2} ${3} | grep Modeline)"
+    echo "{"
+    echo "  services.xserver.monitorSection = ''"
+    echo "    " ${CVT}
+    echo "    " Option '"PreferredMode"' $(echo ${CVT} | awk '{ print $2 }')
+    echo "    " DisplaySize ${MONITOR_SIZE} # In millimeters
+    echo "  '';"
+    echo "}"
 else
-    echo "Usage: $0 build APPLICATION"
+    echo -e "Usage:\t$0 build APPLICATION"
+    echo -e "or:\t$0 generate-resolution X Y"
 fi

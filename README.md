@@ -4,8 +4,6 @@ Simple application VM's based on Nix package manager.
 
 Designed primarily for full screen usage without guest additions.
 
-By default uses 3840x2160, so you need to change `appvm/nix/base.nix` monitorSection. Autodetection based on host resolution will be done after.
-
 It's a proof-of-concept, but you can still use it. Also there is a lot of strange things inside, don't afraid of :)
 
 ## Install Nix package manager
@@ -23,9 +21,17 @@ It's a proof-of-concept, but you can still use it. Also there is a lot of strang
 
 (if you clone appvm to home directory)
 
+## Generate resolution
+
+By default uses 3840x2160. If you need to regenerate `appvm/nix/monitor.nix`:
+
+    $ appvm/appvm.sh generate-resolution 1920 1080 > appvm/nix/monitor.nix
+
+Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a X.org monitor section.
+
 ## Create VM
 
-    $ $HOME/appvm/appvm.sh chromium
+    $ $HOME/appvm/appvm.sh build chromium
 
 ## Run application
 
