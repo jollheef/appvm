@@ -4,7 +4,9 @@ Simple application VM's based on Nix package manager.
 
 Designed primarily for full screen usage without guest additions.
 
-By default uses 3840x2160, so you need to change `appvm/nix/base.nix` monitorSection. Autodetection based on host resolution will be done after :)
+By default uses 3840x2160, so you need to change `appvm/nix/base.nix` monitorSection. Autodetection based on host resolution will be done after.
+
+It's a proof-of-concept, but you can still use it. Also there is a lot of strange things inside, don't afraid of :)
 
 ## Install Nix package manager
 
