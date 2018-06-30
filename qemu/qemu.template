@@ -1,6 +1,8 @@
 #!/bin/bash
 
-NIX_DISK_IMAGE=$(readlink -f ${NIX_DISK_IMAGE:-./tdesktop.qcow2})
+NAME=NAME_PLACEHOLDER
+
+NIX_DISK_IMAGE=$(readlink -f ${NIX_DISK_IMAGE:-./${NAME}.qcow2})
 
 if ! test -e "$NIX_DISK_IMAGE"; then
     qemu-img create -f qcow2 "$NIX_DISK_IMAGE" 512M || exit 1
@@ -19,7 +21,7 @@ NIX_SYSTEM="NIX_SYSTEM_PLACEHOLDER"
 
 # Start QEMU.
 qemu-system-x86_64 -enable-kvm \
-    -name tdesktop \
+    -name NAME_PLACEHOLDER \
     -m 1024 \
     -smp 1 \
     -device virtio-rng-pci \

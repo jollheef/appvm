@@ -2,7 +2,7 @@
 {
   imports = [
     <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
-    <base.nix>
+    <nix/base.nix>
   ];
 
   environment.systemPackages = [ pkgs.tdesktop ];
