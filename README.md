@@ -1,32 +1,36 @@
 # Nix app vms
 
+Simple application VM's based on Nix package manager.
+
+Designed primarily for full screen usage without guest additions.
+
+By default uses 3840x2160, so you need to change `appvm/nix/base.nix` monitorSection. Autodetection based on host resolution will be done after :)
+
 ## Install Nix package manager
 
     $ su -c 'mkdir -m 0755 /nix && chown user /nix'
     $ curl https://nixos.org/nix/install | sh
 
+## Dependencies
+
+    $ su -c 'USE="spice virtfs" emerge qemu virt-manager'
+
+## Add appvm to PATH
+
+    $ echo 'PATH=$PATH:$HOME/appvm/bin' >> ~/.bashrc
+
+(if you clone appvm to home directory)
+
 ## Create VM
 
-    $ NIX_PATH=$NIX_PATH:. nix-build '<nixpkgs/nixos>' -A config.system.build.vm -I nixos-config=chromium.nix
-    $ ln -s
-    these derivations will be built:
-      /nix/store/alsxfss45f61015qk0fi147iidl3hj7h-system-path.drv
-      /nix/store/y4r9v7x4wh2pa1slrv0jw97bzax19ssv-dbus-1.drv
-    ...
-    these paths will be fetched (80.31 MiB download, 341.86 MiB unpacked):
-      /nix/store/2bqrxp8j4ax2ka5car249bb8jdnh3rvm-adwaita-icon-theme-3.28.0
-      /nix/store/rrxkl46g4dc8140ykh9i0clswvfqmz1g-chromium-67.0.3396.87-sandbox
-    ...
-    building '/nix/store/sbxmqqi3wmpf9n79a0mncrvb302xwh4n-nixos-vm.drv'...
-    /nix/store/7zgnq9xw9i7ybvjg0d3h2ank5g5nya5p-nixos-vm
+    $ $HOME/appvm/appvm.sh chromium
 
 ## Run application
 
-For last built application (result is a symbolic link):
+    $ appvm.chromium
 
-    $ ./result/bin/run-chromium-vm
+## Shared directory
 
-Or by full path:
-
-    $ /nix/store/*/bin/run-chromium-vm
-
+    $ ls appvm/share/chromium
+    foo.tar.gz
+    bar.tar.gz
