@@ -26,7 +26,7 @@ qemu-system-x86_64 -enable-kvm \
     -smp 1 \
     -device virtio-rng-pci \
     -net nic,netdev=user.0,model=virtio -netdev user,id=user.0${QEMU_NET_OPTS:+,$QEMU_NET_OPTS} \
-    -spice port=5900,addr=127.0.0.1,disable-ticketing,image-compression=off,seamless-migration=on \
+    -spice port=PORT_PLACEHOLDER,addr=127.200.0.1,disable-ticketing,image-compression=off,seamless-migration=on \
     -sandbox on,obsolete=deny,elevateprivileges=deny,spawn=deny,resourcecontrol=deny \
     -virtfs local,path=/nix/store,security_model=none,mount_tag=store,readonly \
     -virtfs local,path=$TMPDIR/xchg,security_model=none,mount_tag=xchg \
