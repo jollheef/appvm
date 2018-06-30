@@ -1,5 +1,10 @@
-{config, ...}:
+{config, options, ...}:
 {
   config.networking.hostName = "chromium";
-  config.virtualisation.memorySize = 2048;
+  config.fileSystems."/home/user" = {
+    device = "apphome";
+    fsType = "9p";
+    options = [ "trans=virtio" "version=9p2000.L" "cache=loose" ];
+    neededForBoot = true;
+  };
 }
