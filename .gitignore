@@ -2,3 +2,5 @@ bin/*
 !bin/.keep
 qemu/qcow2/*
 !qemu/qcow2/.keep
+qemu/bin/*
+!qemu/bin/.keep
