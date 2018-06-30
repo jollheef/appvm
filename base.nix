@@ -1,8 +1,4 @@
 {
-  imports = [
-    <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
-  ];
-
   system.nixos.stateVersion = "18.03";
 
   services.xserver = {
