@@ -1,6 +1,7 @@
 {
   imports = [
     <nix/monitor.nix>
+    <nix/local.nix>
   ];
 
   system.nixos.stateVersion = "18.03";

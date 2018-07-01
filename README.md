@@ -33,6 +33,8 @@ Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a
 
     $ $HOME/appvm/appvm.sh build chromium
 
+You can customize local settings in `nix/local.nix`.
+
 ## Run application
 
     $ appvm.chromium

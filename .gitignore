@@ -6,3 +6,4 @@ qemu/bin/*
 !qemu/bin/.keep
 share/*
 !share/.keep
+nix/local.nix
