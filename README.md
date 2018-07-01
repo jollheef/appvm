@@ -4,7 +4,7 @@ Simple application VM's based on Nix package manager.
 
 Uses one /nix directory for all appvms. So creating a new appvm (but not first) is just about one minute.
 
-Designed primarily for full screen usage (but remote-viewer has ability to resize window dynamically without change resolution) without guest additions.
+Designed primarily for full screen usage (but remote-viewer has ability to resize window dynamically without change resolution) without guest additions (because of less attack surface).
 
 It's a proof-of-concept, but you can still use it. Also there is a lot of strange things inside, don't afraid of :)
 
@@ -40,6 +40,8 @@ You can customize local settings in `nix/local.nix`.
 ## Run application
 
     $ appvm.chromium
+
+Default hotkey to release cursor: ctrl+alt.
 
 ## Shared directory
 
