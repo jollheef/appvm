@@ -19,7 +19,7 @@ NIX_SYSTEM="NIX_SYSTEM_PLACEHOLDER"
 
 # Start QEMU.
 qemu-system-x86_64 -enable-kvm \
-    -name NAME_PLACEHOLDER \
+    -name NAME_PLACEHOLDER_HASH_PLACEHOLDER \
     -m 1024 \
     -smp 1 \
     -device virtio-rng-pci \

@@ -4,11 +4,19 @@ APPVM_PATH=$(dirname $(realpath $0))
 cd ${APPVM_PATH}
 
 if [ ! -f nix/local.nix ]; then
+    echo "[*] There is no local.nix, creating."
     echo -e "{\n}" >> nix/local.nix
 fi
 
 if [[ "$1" == "build" && "$2" != "" ]]; then
-    rm qemu/qcow2/${2}.qcow2
+    if [ -f bin/appvm.${2} ]; then
+        echo "[*] Kill app."
+        pkill -f "$(cat bin/appvm.${2} | grep pgrep | awk '{ print $3 }')"
+    fi
+    if [ -f qemu/qcow2/${2}.qcow2 ]; then
+        echo "[*] Remove old app state."
+        rm qemu/qcow2/${2}.qcow2
+    fi
     NIX_PATH=$NIX_PATH:. nix-build '<nixpkgs/nixos>' -A config.system.build.vm -I nixos-config=nix/${2}.nix || exit 1
     NIX_SYSTEM=$(realpath result/system)
     mkdir -p bin
@@ -16,6 +24,7 @@ if [[ "$1" == "build" && "$2" != "" ]]; then
     VM_BIN_PATH=$(realpath qemu/bin/qemu.${RAND_HASH}.${2})
     sed "s;NIX_SYSTEM_PLACEHOLDER;${NIX_SYSTEM};" qemu/qemu.template > ${VM_BIN_PATH}
     sed -i "s;NAME_PLACEHOLDER;${2};" ${VM_BIN_PATH}
+    sed -i "s;HASH_PLACEHOLDER;${RAND_HASH};" ${VM_BIN_PATH}
     sed -i "s;NIX_DISK_IMAGE_PLACEHOLDER;${APPVM_PATH}/qemu/qcow2/${2}.qcow2;" ${VM_BIN_PATH}
     RANDOM_PORT=$(/usr/bin/python -c 'import random; print(random.randint(1024,65535))')
     # TODO Check for port collisions
