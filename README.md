@@ -68,3 +68,9 @@ Default hotkey to release cursor: ctrl+alt.
     }
 
 For create new app you should add package name (search at https://nixos.org/nixos/packages.html) and path to binary (typically same as package name).
+
+## Defined applications (pull requests are welcome!)
+
+* chromium
+* thunderbird
+* tdesktop
