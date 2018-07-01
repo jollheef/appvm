@@ -4,6 +4,7 @@ APPVM_PATH=$(dirname $(realpath $0))
 cd ${APPVM_PATH}
 
 if [[ "$1" == "build" && "$2" != "" ]]; then
+    rm qemu/qcow/${2}.qcow2
     NIX_PATH=$NIX_PATH:. nix-build '<nixpkgs/nixos>' -A config.system.build.vm -I nixos-config=nix/${2}.nix || exit 1
     NIX_SYSTEM=$(realpath result/system)
     mkdir -p bin
