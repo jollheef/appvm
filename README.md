@@ -75,3 +75,4 @@ For create new app you should add package name (search at https://nixos.org/nixo
 * thunderbird
 * tdesktop
 * evince
+* libreoffice
