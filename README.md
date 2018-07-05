@@ -8,6 +8,8 @@ Designed primarily for full screen usage (but remote-viewer has ability to resiz
 
 It's a proof-of-concept, but you can still use it. Also there is a lot of strange things inside, don't afraid of :)
 
+![appvm screenshot](screenshots/2018-07-05.png)
+
 ## Install Nix package manager
 
     $ su -c 'mkdir -m 0755 /nix && chown user /nix'
