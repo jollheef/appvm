@@ -36,11 +36,22 @@ main = xmonad defaultConfig
     description = "Create and xmonad configuration";
     serviceConfig = {
       ConditionFileNotEmpty = "!/home/user/.xmonad/xmonad.hs";
-      ExecStart = "/bin/sh -c 'mkdir /home/user/.xmonad && cp /etc/xmonad.hs /home/user/.xmonad/xmonad.hs'";
+      ExecStart = "/bin/sh -c 'mkdir -p /home/user/.xmonad && cp /etc/xmonad.hs /home/user/.xmonad/xmonad.hs'";
       RemainAfterExit = "yes";
       Type = "oneshot";
       User = "user";
     };
     wantedBy = [ "multi-user.target" ];
+  };
+
+  systemd.services.mount-home-user = {
+    description = "Mount /home/user (crutch)";
+    serviceConfig = {
+      ExecStart = "/bin/sh -c '/run/current-system/sw/bin/mount -t 9p -o trans=virtio,version=9p2000.L,uid=1000 home /home/user'";
+      RemainAfterExit = "yes";
+      Type = "oneshot";
+      User = "root";
+    };
+    wantedBy = [ "sysinit.target" ];
   };
 }

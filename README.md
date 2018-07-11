@@ -4,9 +4,7 @@ Simple application VM's based on Nix package manager.
 
 Uses one **read-only** /nix directory for all appvms. So creating a new appvm (but not first) is just about one minute.
 
-Designed primarily for full screen usage (but remote-viewer has ability to resize window dynamically without change resolution) without guest additions (because of **less attack surface**).
-
-It's a proof-of-concept, but you can still use it. Also there is a lot of strange things inside, don't afraid of :)
+Currently optimized for full screen usage (but remote-viewer has ability to resize window dynamically without change resolution) without guest additions.
 
 ![appvm screenshot](screenshots/2018-07-05.png)
 
@@ -19,41 +17,41 @@ It's a proof-of-concept, but you can still use it. Also there is a lot of strang
 
     $ su -c 'USE="spice virtfs" emerge qemu virt-manager'
 
-## Add appvm to PATH
+## Libvirt from user (required if you need access to shared files)
 
-    $ echo 'PATH=$PATH:$HOME/appvm/bin' >> ~/.bashrc
+    $ echo user = "$USER" | sudo tee -a /etc/libvirt/qemu.conf
 
-(if you clone appvm to home directory)
+## Install appvm tool
+
+    $ go get github.com/jollheef/appvm
 
 ## Generate resolution
 
 By default uses 3840x2160. If you need to regenerate `appvm/nix/monitor.nix`:
 
-    $ appvm/appvm.sh generate-resolution 1920 1080 > appvm/nix/monitor.nix
+    $ $GOPATH/github.com/jollheef/appvm/generate-resolution.sh 1920 1080 > $GOPATH/github.com/jollheef/appvm/nix/monitor.nix
 
 Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a X.org monitor section.
 
-## Create VM
-
-    $ $HOME/appvm/appvm.sh build chromium
-
-You can customize local settings in `nix/local.nix`.
-
 ## Run application
 
-    $ appvm.chromium
+($GOPATH/bin must be in $PATH)
+
+    $ appvm start chromium
+
+You can customize local settings in `$GOPATH/github.com/jollheef/appvm/nix/local.nix`.
 
 Default hotkey to release cursor: ctrl+alt.
 
 ## Shared directory
 
-    $ ls appvm/share/chromium
+    $ ls appvm/chromium
     foo.tar.gz
     bar.tar.gz
 
 ## Close VM
 
-    $ pkill.... :)
+    $ appvm stop chromium
 
 # App description
 
