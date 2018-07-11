@@ -19,7 +19,7 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
 ## Libvirt from user (required if you need access to shared files)
 
-    $ echo user = "$USER" | sudo tee -a /etc/libvirt/qemu.conf
+    $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
 
 ## Install appvm tool
 
