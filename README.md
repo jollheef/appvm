@@ -78,3 +78,4 @@ For create new app you should add package name (search at https://nixos.org/nixo
 * tdesktop
 * evince
 * libreoffice
+* wire
