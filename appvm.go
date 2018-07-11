@@ -171,7 +171,7 @@ func stop(l *libvirt.Libvirt, name string) {
 			log.Fatal(err)
 		}
 	}
-	err = l.DomainDestroy(dom)
+	err = l.DomainShutdown(dom)
 	if err != nil {
 		log.Fatal(err)
 	}
