@@ -16,6 +16,11 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 ## Dependencies
 
     $ sudo apt install golang virt-manager
+    $ export 'GOPATH=$HOME/go' >> ~/.bashrc
+    $ export 'PATH=$PATH:$GOPATH/bin' >> ~/.bashrc
+    $ source ~/.bashrc
+
+You need to **relogin** if you install virt-manager (libvirt) first time.
 
 ## Libvirt from user (required if you need access to shared files)
 
@@ -23,9 +28,6 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
 ## Install appvm tool
 
-    $ export 'GOPATH=$HOME/go' >> ~/.bashrc
-    $ export 'PATH=$PATH:$GOPATH/bin' >> ~/.bashrc
-    $ source ~/.bashrc
     $ go get github.com/jollheef/appvm
 
 ## Generate resolution
