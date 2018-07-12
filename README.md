@@ -8,20 +8,20 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
 ![appvm screenshot](screenshots/2018-07-05.png)
 
-## Install Nix package manager
-
-    $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
-    $ curl https://nixos.org/nix/install | sh
-    $ . ~/.nix-profile/etc/profile.d/nix.sh
-
 ## Dependencies
 
     $ sudo apt install golang virt-manager curl
     $ echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
     $ echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bash_profile
-    $ source ~/.bashrc
+    $ source ~/.bash_profile
 
 You need to **relogin** if you install virt-manager (libvirt) first time.
+
+## Install Nix package manager
+
+    $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
+    $ curl https://nixos.org/nix/install | sh
+    $ . ~/.nix-profile/etc/profile.d/nix.sh
 
 ## Libvirt from user (required if you need access to shared files)
 
