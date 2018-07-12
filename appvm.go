@@ -27,9 +27,9 @@ import (
 var xmlTmpl = `
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <name>%s</name>
-  <memory unit='KiB'>1048576</memory>
-  <currentMemory unit='KiB'>1048576</currentMemory>
-  <vcpu placement='static'>1</vcpu>
+  <memory unit='GiB'>2</memory>
+  <currentMemory unit='GiB'>1</currentMemory>
+  <vcpu>4</vcpu>
   <os>
     <type arch='x86_64' machine='pc-i440fx-2.12'>hvm</type>
     <kernel>%s/kernel</kernel>
