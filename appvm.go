@@ -9,6 +9,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -98,10 +99,22 @@ func list(l *libvirt.Libvirt) {
 		log.Fatal(err)
 	}
 
-	// TODO list available to create VM's too
+	fmt.Println("Started VM:")
 	for _, d := range domains {
 		if d.Name[0:5] == "appvm" {
-			fmt.Println(d.Name[6:])
+			fmt.Println("\t", d.Name[6:])
+		}
+	}
+
+	fmt.Println("\nAvailable VM:")
+	files, err := ioutil.ReadDir(os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm/nix")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		if f.Name() != "base.nix" && f.Name() != "local.nix" && f.Name() != "monitor.nix" {
+			fmt.Println("\t", f.Name()[0:len(f.Name())-4])
 		}
 	}
 }
