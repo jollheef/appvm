@@ -15,7 +15,7 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
 ## Dependencies
 
-    $ sudo apt install golang virt-manager
+    $ sudo apt install golang virt-manager curl
     $ export 'GOPATH=$HOME/go' >> ~/.bashrc
     $ export 'PATH=$PATH:$GOPATH/bin' >> ~/.bashrc
     $ source ~/.bashrc
