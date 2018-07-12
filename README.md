@@ -10,7 +10,7 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
 ## Install Nix package manager
 
-    $ sudo "mkdir -m 0755 /nix && chown $USER /nix"
+    $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
     $ curl https://nixos.org/nix/install | sh
 
 ## Dependencies
