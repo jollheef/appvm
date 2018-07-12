@@ -210,7 +210,7 @@ func start(l *libvirt.Libvirt, name string) {
 		log.Fatal(err)
 	}
 
-	cmd := exec.Command("virt-viewer", "-f", "appvm_"+name)
+	cmd := exec.Command("virt-viewer", "appvm_"+name)
 	cmd.Start()
 }
 
