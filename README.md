@@ -38,8 +38,6 @@ Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a
 
 ## Run application
 
-($GOPATH/bin must be in $PATH)
-
     $ appvm start chromium
 
 You can customize local settings in `$GOPATH/github.com/jollheef/appvm/nix/local.nix`.
