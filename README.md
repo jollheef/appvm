@@ -34,6 +34,10 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
     $ go get github.com/jollheef/appvm
 
+## Update appvm tool
+
+    $ go get -u github.com/jollheef/appvm
+
 ## Generate resolution
 
 By default uses 1920x1080. If you need to regenerate `appvm/nix/monitor.nix`:
@@ -45,6 +49,7 @@ Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a
 ## Run application
 
     $ appvm start chromium
+    $ # ... long wait for first time, because we need to collect a lot of packages
 
 You can customize local settings in `$GOPATH/github.com/jollheef/appvm/nix/local.nix`.
 
