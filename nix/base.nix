@@ -1,3 +1,4 @@
+{pkgs, ...}:
 {
   imports = [
     <nix/monitor.nix>
@@ -38,6 +39,14 @@ startup :: X ()
 startup = do
   spawn "spice-vdagent"
   '';
+
+  environment.systemPackages = [ pkgs.bc ];
+  services.cron = {
+    enable = true;
+    systemCronJobs = [
+      "* * * * *      root    free -m | grep Mem | awk '{print $2 \"-\" $4}' | bc > /home/user/.memory_used"
+    ];
+  };
 
   systemd.services.home-user-build-xmonad = {
     description = "Create and xmonad configuration";
