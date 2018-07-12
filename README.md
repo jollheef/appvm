@@ -15,6 +15,7 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
     $ echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
     $ echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bash_profile
+    $ echo 'source ~/.bash_profile' >> ~/.bashrc
     $ source ~/.bash_profile
 
 You need to **relogin** if you install virt-manager (libvirt) first time.
