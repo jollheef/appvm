@@ -16,11 +16,13 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 	"syscall"
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
 	"github.com/jollheef/go-system"
+	"github.com/olekukonko/tablewriter"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
@@ -239,6 +241,60 @@ func drop(name string) {
 	os.RemoveAll(appDataPath)
 }
 
+func autoBalloon(l *libvirt.Libvirt) {
+	domains, err := l.Domains()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	const memoryMin = 512 * 1024 // 512 MiB
+
+	table := tablewriter.NewWriter(os.Stdout)
+	table.SetHeader([]string{"Application VM", "Used memory", "Current memory", "Max memory", "New memory"})
+	for _, d := range domains {
+		if d.Name[0:5] == "appvm" {
+			name := d.Name[6:]
+
+			memoryUsedRaw, err := ioutil.ReadFile(os.Getenv("HOME") + "/appvm/" + name + "/.memory_used")
+			if err != nil {
+				log.Fatal(err)
+			}
+			memoryUsedMiB, err := strconv.Atoi(string(memoryUsedRaw[0 : len(memoryUsedRaw)-1]))
+			if err != nil {
+				log.Fatal(err)
+			}
+			memoryUsed := memoryUsedMiB * 1024
+
+			_, memoryMax, memoryCurrent, _, _, err := l.DomainGetInfo(d)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			memoryNew := uint64(float64(memoryUsed) * 1.2) // +20%
+
+			if memoryNew > memoryMax {
+				memoryNew = memoryMax - 1
+			}
+
+			if memoryNew < memoryMin {
+				memoryNew = memoryMin
+			}
+
+			err = l.DomainSetMemory(d, memoryNew)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			table.Append([]string{name,
+				fmt.Sprintf("%d", memoryUsed),
+				fmt.Sprintf("%d", memoryCurrent),
+				fmt.Sprintf("%d", memoryMax),
+				fmt.Sprintf("%d", memoryNew)})
+		}
+	}
+	table.Render()
+}
+
 func main() {
 	c, err := net.DialTimeout("unix", "/var/run/libvirt/libvirt-sock", time.Second)
 	if err != nil {
@@ -252,6 +308,7 @@ func main() {
 	defer l.Disconnect()
 
 	kingpin.Command("list", "List applications")
+	kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
 	startName := kingpin.Command("start", "Start application").Arg("name", "Application name").Required().String()
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -265,5 +322,7 @@ func main() {
 		stop(l, *stopName)
 	case "drop":
 		drop(*dropName)
+	case "autoballoon":
+		autoBalloon(l)
 	}
 }

@@ -66,6 +66,17 @@ Default hotkey to release cursor: ctrl+alt.
 
     $ appvm stop chromium
 
+## Automatic ballooning
+
+Add this command:
+
+    $ appvm autoballoon
+
+to crontab like that:
+
+    $ crontab -l
+    * * * * * /home/user/dev/go/bin/appvm autoballoon
+
 # App description
 
     $ cat nix/chromium.nix
