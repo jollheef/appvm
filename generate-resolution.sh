@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 if [[ "$1" == "" || "$2" == "" ]]; then
     echo -e "Usage:\t$0 X Y"

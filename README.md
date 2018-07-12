@@ -34,9 +34,9 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
 ## Generate resolution
 
-By default uses 3840x2160. If you need to regenerate `appvm/nix/monitor.nix`:
+By default uses 1920x1080. If you need to regenerate `appvm/nix/monitor.nix`:
 
-    $ $GOPATH/github.com/jollheef/appvm/generate-resolution.sh 1920 1080 > $GOPATH/github.com/jollheef/appvm/nix/monitor.nix
+    $ $GOPATH/src/github.com/jollheef/appvm/generate-resolution.sh 3840 2160 > $GOPATH/src/github.com/jollheef/appvm/nix/monitor.nix
 
 Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a X.org monitor section.
 

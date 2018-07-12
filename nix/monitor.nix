@@ -1,7 +1,6 @@
 {
   services.xserver.monitorSection = ''
-     Modeline "3840x2160_60.00" 712.75 3840 4160 4576 5312 2160 2163 2168 2237 -hsync +vsync
-     Option "PreferredMode" "3840x2160_60.00"
-     DisplaySize 610 350
+     Modeline "1920x1080_60.00" 173.00 1920 2048 2248 2576 1080 1083 1088 1120 -hsync +vsync
+     Option "PreferredMode" "1920x1080_60.00"
   '';
 }
