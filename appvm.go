@@ -114,16 +114,18 @@ func list(l *libvirt.Libvirt) {
 	}
 
 	for _, f := range files {
-		if f.Name() != "base.nix" && f.Name() != "local.nix" && f.Name() != "monitor.nix" {
+		if f.Name() != "base.nix" &&
+			f.Name() != "local.nix" && f.Name() != "monitor.nix" &&
+			f.Name() != "local.nix.template" && f.Name() != "monitor.nix.template" {
 			fmt.Println("\t", f.Name()[0:len(f.Name())-4])
 		}
 	}
 }
 
-func copyFile(to, from string) (err error) {
+func copyFile(from, to string) (err error) {
 	source, err := os.Open(from)
 	if err != nil {
-		return err
+		return
 	}
 	defer source.Close()
 
