@@ -114,10 +114,10 @@ func start(l *libvirt.Libvirt, name string) {
 		log.Fatal(err)
 	}
 
-	_, _, _, err = system.System("nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
+	stdout, stderr, ret, err := system.System("nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
 		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err, stdout, stderr, ret)
 	}
 
 	realpath, err := filepath.EvalSymlinks("result/system")
