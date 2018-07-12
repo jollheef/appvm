@@ -12,6 +12,7 @@ Currently optimized for full screen usage (but remote-viewer has ability to resi
 
     $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
     $ curl https://nixos.org/nix/install | sh
+    $ . ~/.nix-profile/etc/profile.d/nix.sh
 
 ## Dependencies
 
