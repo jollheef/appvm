@@ -1,6 +1,6 @@
-# Nix app vms
+# Nix application VMs: security through virtualization
 
-Simple application VM's based on Nix package manager.
+Simple application VMs (hypervisor-based sandbox) based on Nix package manager.
 
 Uses one **read-only** /nix directory for all appvms. So creating a new appvm (but not first) is just about one minute.
 
