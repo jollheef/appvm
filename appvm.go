@@ -49,6 +49,10 @@ var xmlTmpl = `
       <listen type='address'/>
       <image compression='off'/>
     </graphics>
+    <!-- Guest additionals support -->
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0'/>
+    </channel>
     <!-- Fake (because -snapshot) writeback image -->
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2' cache='writeback' error_policy='report'/>

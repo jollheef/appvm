@@ -18,6 +18,8 @@
     windowManager.default = "xmonad";
   };
 
+  services.spice-vdagentd.enable = true;
+
   users.extraUsers.user = {
     isNormalUser = true;
     extraGroups = [ "audio" ];
@@ -29,7 +31,12 @@ import XMonad
 main = xmonad defaultConfig
   { workspaces = [ "" ]
   , borderWidth = 0
+  , startupHook = startup
   }
+
+startup :: X ()
+startup = do
+  spawn "spice-vdagent"
   '';
 
   systemd.services.home-user-build-xmonad = {
