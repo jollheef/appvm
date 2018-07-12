@@ -25,6 +25,7 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 ## Libvirt from user (required if you need access to shared files)
 
     $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
+    $ sudo systemctl restart libvirtd
 
 ## Install appvm tool
 
