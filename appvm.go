@@ -241,13 +241,11 @@ func drop(name string) {
 	os.RemoveAll(appDataPath)
 }
 
-func autoBalloon(l *libvirt.Libvirt) {
+func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 	domains, err := l.Domains()
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	const memoryMin = 512 * 1024 // 512 MiB
 
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Application VM", "Used memory", "Current memory", "Max memory", "New memory"})
@@ -270,7 +268,7 @@ func autoBalloon(l *libvirt.Libvirt) {
 				log.Fatal(err)
 			}
 
-			memoryNew := uint64(float64(memoryUsed) * 1.2) // +20%
+			memoryNew := uint64(float64(memoryUsed) * (1 + float64(adjustPercent)/100))
 
 			if memoryNew > memoryMax {
 				memoryNew = memoryMax - 1
@@ -308,7 +306,9 @@ func main() {
 	defer l.Disconnect()
 
 	kingpin.Command("list", "List applications")
-	kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
+	autoballonCommand := kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
+	minMemory := autoballonCommand.Flag("min-memory", "Set minimal memory (megabytes)").Default("1024").Uint64()
+	adjustPercent := autoballonCommand.Flag("adj-memory", "Adjust memory ammount (percents)").Default("20").Uint64()
 	startName := kingpin.Command("start", "Start application").Arg("name", "Application name").Required().String()
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -323,6 +323,6 @@ func main() {
 	case "drop":
 		drop(*dropName)
 	case "autoballoon":
-		autoBalloon(l)
+		autoBalloon(l, *minMemory*1024, *adjustPercent)
 	}
 }
