@@ -209,7 +209,7 @@ func start(l *libvirt.Libvirt, name string) {
 	}
 
 	// Copy templates
-	err = prepareTemplates(name)
+	err = prepareTemplates(appvmPath)
 	if err != nil {
 		log.Fatal(err)
 	}
