@@ -17,6 +17,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -224,6 +225,18 @@ func generateAppVM(l *libvirt.Libvirt, appvmPath, name string) (err error) {
 	return
 }
 
+func stupidProgressBar() {
+	const length = 70
+	for {
+		time.Sleep(time.Second / 4)
+		fmt.Printf("\r%s]\r[", strings.Repeat(" ", length))
+		for i := 0; i <= length-2; i++ {
+			time.Sleep(time.Second / 20)
+			fmt.Printf("+")
+		}
+	}
+}
+
 func start(l *libvirt.Libvirt, name string) {
 	// Currently binary-only installation is not supported, because we need *.nix configurations
 	appvmPath := os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm"
@@ -235,6 +248,7 @@ func start(l *libvirt.Libvirt, name string) {
 	}
 
 	if !isRunning(l, name) {
+		go stupidProgressBar()
 		err = generateAppVM(l, appvmPath, name)
 		if err != nil {
 			log.Fatal(err)
