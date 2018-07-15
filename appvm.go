@@ -149,6 +149,23 @@ func copyFile(from, to string) (err error) {
 	return destination.Close()
 }
 
+func prepareTemplates(appvmPath string) (err error) {
+	if _, err = os.Stat(appvmPath + "/nix/local.nix"); os.IsNotExist(err) {
+		err = copyFile(appvmPath+"/nix/local.nix.template", appvmPath+"/nix/local.nix")
+		if err != nil {
+			return
+		}
+	}
+
+	if _, err = os.Stat(appvmPath + "/nix/monitor.nix"); os.IsNotExist(err) {
+		err = copyFile(appvmPath+"/nix/monitor.nix.template", appvmPath+"/nix/monitor.nix")
+		if err != nil {
+			return
+		}
+	}
+	return
+}
+
 func start(l *libvirt.Libvirt, name string) {
 	// Currently binary-only installation is not supported, because we need *.nix configurations
 	gopath := os.Getenv("GOPATH")
@@ -159,18 +176,9 @@ func start(l *libvirt.Libvirt, name string) {
 	}
 
 	// Copy templates
-	if _, err := os.Stat(appvmPath + "/nix/local.nix"); os.IsNotExist(err) {
-		err = copyFile(appvmPath+"/nix/local.nix.template", appvmPath+"/nix/local.nix")
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	if _, err := os.Stat(appvmPath + "/nix/monitor.nix"); os.IsNotExist(err) {
-		err = copyFile(appvmPath+"/nix/monitor.nix.template", appvmPath+"/nix/monitor.nix")
-		if err != nil {
-			log.Fatal(err)
-		}
+	err := prepareTemplates(name)
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	stdout, stderr, ret, err := system.System("nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
