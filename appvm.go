@@ -199,24 +199,21 @@ func generateVM(name string) (realpath, reginfo, qcow2 string, err error) {
 	return
 }
 
-func start(l *libvirt.Libvirt, name string) {
-	// Currently binary-only installation is not supported, because we need *.nix configurations
-	gopath := os.Getenv("GOPATH")
-	appvmPath := gopath + "/src/github.com/jollheef/appvm"
-	err := os.Chdir(appvmPath)
-	if err != nil {
-		log.Fatal(err)
-	}
+func isRunning(l *libvirt.Libvirt, name string) bool {
+	_, err := l.DomainLookupByName("appvm_" + name) // yep, there is no libvirt error handling
+	// VM is destroyed when stop so NO VM means STOPPED
+	return err == nil
+}
 
-	// Copy templates
-	err = prepareTemplates(appvmPath)
+func generateAppVM(l *libvirt.Libvirt, appvmPath, name string) (err error) {
+	err = os.Chdir(appvmPath)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
 	realpath, reginfo, qcow2, err := generateVM(name)
 	if err != nil {
-		log.Fatal(err)
+		return
 	}
 
 	sharedDir := fmt.Sprintf(os.Getenv("HOME") + "/appvm/" + name)
@@ -224,8 +221,24 @@ func start(l *libvirt.Libvirt, name string) {
 
 	xml := generateXML(name, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
+	return
+}
+
+func start(l *libvirt.Libvirt, name string) {
+	// Currently binary-only installation is not supported, because we need *.nix configurations
+	appvmPath := os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm"
+
+	// Copy templates
+	err := prepareTemplates(appvmPath)
 	if err != nil {
 		log.Fatal(err)
+	}
+
+	if !isRunning(l, name) {
+		err = generateAppVM(l, appvmPath, name)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	cmd := exec.Command("virt-viewer", "appvm_"+name)
