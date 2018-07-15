@@ -166,6 +166,39 @@ func prepareTemplates(appvmPath string) (err error) {
 	return
 }
 
+func generateVM(name string) (realpath, reginfo, qcow2 string, err error) {
+	stdout, stderr, ret, err := system.System("nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
+		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
+	if err != nil {
+		log.Println(err, stdout, stderr, ret)
+		return
+	}
+
+	realpath, err = filepath.EvalSymlinks("result/system")
+	if err != nil {
+		return
+	}
+
+	// TODO: Use go regex
+	reginfo, _, _, err = system.System("sh", "-c", "cat result/bin/run-nixos-vm | grep -o 'regInfo=.*/registration'")
+	if err != nil {
+		return
+	}
+
+	syscall.Unlink("result")
+
+	qcow2 = "/tmp/.appvm.fake.qcow2"
+	if _, err = os.Stat(qcow2); os.IsNotExist(err) {
+		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "512M")
+		err = os.Chmod(qcow2, 0400) // qemu run with -snapshot, we only need it for create /dev/vda
+		if err != nil {
+			return
+		}
+	}
+
+	return
+}
+
 func start(l *libvirt.Libvirt, name string) {
 	// Currently binary-only installation is not supported, because we need *.nix configurations
 	gopath := os.Getenv("GOPATH")
@@ -176,47 +209,18 @@ func start(l *libvirt.Libvirt, name string) {
 	}
 
 	// Copy templates
-	err := prepareTemplates(name)
+	err = prepareTemplates(name)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	stdout, stderr, ret, err := system.System("nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
-		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
-	if err != nil {
-		log.Fatalln(err, stdout, stderr, ret)
-	}
-
-	realpath, err := filepath.EvalSymlinks("result/system")
+	realpath, reginfo, qcow2, err := generateVM(name)
 	if err != nil {
 		log.Fatal(err)
-	}
-
-	// TODO: Use go regex
-	reginfo, _, _, err := system.System("sh", "-c", "cat result/bin/run-nixos-vm | grep -o 'regInfo=.*/registration'")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	syscall.Unlink("result")
-
-	qcow2 := "/tmp/.appvm.fake.qcow2"
-	if _, err := os.Stat(qcow2); os.IsNotExist(err) {
-		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "512M")
-		err := os.Chmod(qcow2, 0400) // qemu run with -snapshot, we only need it for create /dev/vda
-		if err != nil {
-			log.Fatal(err)
-		}
 	}
 
 	sharedDir := fmt.Sprintf(os.Getenv("HOME") + "/appvm/" + name)
 	os.MkdirAll(sharedDir, 0700)
-
-	// TODO: Search go libraries for manipulate ACL
-	_, _, _, err = system.System("setfacl", "-R", "-m", "u:qemu:rwx", os.Getenv("HOME")+"/appvm/")
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	xml := generateXML(name, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
