@@ -22,6 +22,7 @@ import (
 	"time"
 
 	"github.com/digitalocean/go-libvirt"
+	"github.com/go-cmd/cmd"
 	"github.com/jollheef/go-system"
 	"github.com/olekukonko/tablewriter"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
@@ -167,11 +168,28 @@ func prepareTemplates(appvmPath string) (err error) {
 	return
 }
 
-func generateVM(name string) (realpath, reginfo, qcow2 string, err error) {
-	stdout, stderr, ret, err := system.System("nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
+func streamStdOutErr(command *cmd.Cmd) {
+	for {
+		select {
+		case line := <-command.Stdout:
+			fmt.Println(line)
+		case line := <-command.Stderr:
+			fmt.Fprintln(os.Stderr, line)
+		}
+	}
+}
+
+func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err error) {
+	command := cmd.NewCmdOptions(cmd.Options{Buffered: false, Streaming: true},
+		"nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
 		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
-	if err != nil {
-		log.Println(err, stdout, stderr, ret)
+	if verbose {
+		go streamStdOutErr(command)
+	}
+
+	status := <-command.Start()
+	if status.Error != nil || status.Exit != 0 {
+		log.Println(status.Error, status.Stdout, status.Stderr)
 		return
 	}
 
@@ -206,13 +224,13 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 	return err == nil
 }
 
-func generateAppVM(l *libvirt.Libvirt, appvmPath, name string) (err error) {
+func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose bool) (err error) {
 	err = os.Chdir(appvmPath)
 	if err != nil {
 		return
 	}
 
-	realpath, reginfo, qcow2, err := generateVM(name)
+	realpath, reginfo, qcow2, err := generateVM(name, verbose)
 	if err != nil {
 		return
 	}
@@ -237,7 +255,7 @@ func stupidProgressBar() {
 	}
 }
 
-func start(l *libvirt.Libvirt, name string) {
+func start(l *libvirt.Libvirt, name string, verbose bool) {
 	// Currently binary-only installation is not supported, because we need *.nix configurations
 	appvmPath := os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm"
 
@@ -248,8 +266,10 @@ func start(l *libvirt.Libvirt, name string) {
 	}
 
 	if !isRunning(l, name) {
-		go stupidProgressBar()
-		err = generateAppVM(l, appvmPath, name)
+		if !verbose {
+			go stupidProgressBar()
+		}
+		err = generateAppVM(l, appvmPath, name, verbose)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -348,7 +368,11 @@ func main() {
 	autoballonCommand := kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
 	minMemory := autoballonCommand.Flag("min-memory", "Set minimal memory (megabytes)").Default("1024").Uint64()
 	adjustPercent := autoballonCommand.Flag("adj-memory", "Adjust memory ammount (percents)").Default("20").Uint64()
-	startName := kingpin.Command("start", "Start application").Arg("name", "Application name").Required().String()
+
+	startCommand := kingpin.Command("start", "Start application")
+	startName := startCommand.Arg("name", "Application name").Required().String()
+	startVerbose := startCommand.Flag("verbose", "Increase verbosity").Default("False").Bool()
+
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
 
@@ -356,7 +380,7 @@ func main() {
 	case "list":
 		list(l)
 	case "start":
-		start(l, *startName)
+		start(l, *startName, *startVerbose)
 	case "stop":
 		stop(l, *stopName)
 	case "drop":

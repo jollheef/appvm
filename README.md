@@ -49,7 +49,7 @@ Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a
 
 ## Run application
 
-    $ appvm start chromium
+    $ appvm start chromium --verbose
     $ # ... long wait for first time, because we need to collect a lot of packages
 
 You can customize local settings in `$GOPATH/github.com/jollheef/appvm/nix/local.nix`.
