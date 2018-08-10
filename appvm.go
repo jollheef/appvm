@@ -367,7 +367,7 @@ func main() {
 	kingpin.Command("list", "List applications")
 	autoballonCommand := kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
 	minMemory := autoballonCommand.Flag("min-memory", "Set minimal memory (megabytes)").Default("1024").Uint64()
-	adjustPercent := autoballonCommand.Flag("adj-memory", "Adjust memory ammount (percents)").Default("20").Uint64()
+	adjustPercent := autoballonCommand.Flag("adj-memory", "Adjust memory amount (percents)").Default("20").Uint64()
 
 	startCommand := kingpin.Command("start", "Start application")
 	startName := startCommand.Arg("name", "Application name").Required().String()
