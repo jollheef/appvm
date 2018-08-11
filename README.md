@@ -101,3 +101,4 @@ For create new app you should add package name (search at https://nixos.org/nixo
 * evince
 * libreoffice
 * wire
+* torbrowser
