@@ -1,2 +1,3 @@
 nix/local.nix
 nix/monitor.nix
+vendor
