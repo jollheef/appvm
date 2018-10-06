@@ -31,6 +31,11 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
     $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
     $ sudo systemctl restart libvirtd
 
+## Install vendor dependencies
+   > Requires installed [dep](https://golang.github.io/dep/)
+
+    $ dep ensure
+
 ## Install appvm tool
 
     $ go get github.com/jollheef/appvm
