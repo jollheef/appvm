@@ -97,7 +97,7 @@ var xmlTmpl = `
 `
 
 func generateXML(name, vmNixPath, reginfo, img, sharedDir string) string {
-	// TODO: Define XML in go
+	// TODO: Define XML in Go, i.e. use proper templating
 	return fmt.Sprintf(xmlTmpl, "appvm_"+name, vmNixPath, vmNixPath, vmNixPath,
 		reginfo, img, sharedDir, sharedDir, sharedDir)
 }
@@ -142,8 +142,7 @@ func copyFile(from, to string) (err error) {
 		return
 	}
 
-	_, err = io.Copy(destination, source)
-	if err != nil {
+	if _, err = io.Copy(destination, source); err != nil {
 		destination.Close()
 		return
 	}
@@ -153,15 +152,13 @@ func copyFile(from, to string) (err error) {
 
 func prepareTemplates(appvmPath string) (err error) {
 	if _, err = os.Stat(appvmPath + "/nix/local.nix"); os.IsNotExist(err) {
-		err = copyFile(appvmPath+"/nix/local.nix.template", appvmPath+"/nix/local.nix")
-		if err != nil {
+		if err = copyFile(appvmPath+"/nix/local.nix.template", appvmPath+"/nix/local.nix"); err != nil {
 			return
 		}
 	}
 
 	if _, err = os.Stat(appvmPath + "/nix/monitor.nix"); os.IsNotExist(err) {
-		err = copyFile(appvmPath+"/nix/monitor.nix.template", appvmPath+"/nix/monitor.nix")
-		if err != nil {
+		if err = copyFile(appvmPath+"/nix/monitor.nix.template", appvmPath+"/nix/monitor.nix"); err != nil {
 			return
 		}
 	}
@@ -187,8 +184,7 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 		go streamStdOutErr(command)
 	}
 
-	status := <-command.Start()
-	if status.Error != nil || status.Exit != 0 {
+	if status := <-command.Start(); status.Error != nil || status.Exit != 0 {
 		log.Println(status.Error, status.Stdout, status.Stderr)
 		return
 	}
@@ -198,7 +194,7 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 		return
 	}
 
-	// TODO: Use go regex
+	// TODO: Use Go regex
 	reginfo, _, _, err = system.System("sh", "-c", "cat result/bin/run-nixos-vm | grep -o 'regInfo=.*/registration'")
 	if err != nil {
 		return
@@ -209,8 +205,7 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 	qcow2 = "/tmp/.appvm.fake.qcow2"
 	if _, err = os.Stat(qcow2); os.IsNotExist(err) {
 		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "512M")
-		err = os.Chmod(qcow2, 0400) // qemu run with -snapshot, we only need it for create /dev/vda
-		if err != nil {
+		if err = os.Chmod(qcow2, 0400); err != nil {  // qemu run with -snapshot, we only need it for create /dev/vda
 			return
 		}
 	}
@@ -225,8 +220,7 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 }
 
 func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose bool) (err error) {
-	err = os.Chdir(appvmPath)
-	if err != nil {
+	if err = os.Chdir(appvmPath); err != nil {
 		return
 	}
 
@@ -260,8 +254,7 @@ func start(l *libvirt.Libvirt, name string, verbose bool) {
 	appvmPath := os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm"
 
 	// Copy templates
-	err := prepareTemplates(appvmPath)
-	if err != nil {
+	if err := prepareTemplates(appvmPath); err != nil {
 		log.Fatal(err)
 	}
 
@@ -269,8 +262,7 @@ func start(l *libvirt.Libvirt, name string, verbose bool) {
 		if !verbose {
 			go stupidProgressBar()
 		}
-		err = generateAppVM(l, appvmPath, name, verbose)
-		if err != nil {
+		if err = generateAppVM(l, appvmPath, name, verbose); err != nil {
 			log.Fatal(err)
 		}
 	}
@@ -285,12 +277,10 @@ func stop(l *libvirt.Libvirt, name string) {
 		if libvirt.IsNotFound(err) {
 			log.Println("Appvm not found or already stopped")
 			return
-		} else {
-			log.Fatal(err)
 		}
+		log.Fatal(err)
 	}
-	err = l.DomainShutdown(dom)
-	if err != nil {
+	if err = l.DomainShutdown(dom); err != nil {
 		log.Fatal(err)
 	}
 }
@@ -337,8 +327,7 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 				memoryNew = memoryMin
 			}
 
-			err = l.DomainSetMemory(d, memoryNew)
-			if err != nil {
+			if err = l.DomainSetMemory(d, memoryNew); err != nil {
 				log.Fatal(err)
 			}
 
