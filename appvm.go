@@ -116,7 +116,7 @@ func list(l *libvirt.Libvirt) {
 	}
 
 	fmt.Println("\nAvailable VM:")
-	files, err := ioutil.ReadDir(os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm/nix")
+	files, err := ioutil.ReadDir(os.Getenv("GOPATH") + "/src/code.dumpstack.io/tools/appvm/nix")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -257,7 +257,7 @@ func stupidProgressBar() {
 
 func start(l *libvirt.Libvirt, name string, verbose bool) {
 	// Currently binary-only installation is not supported, because we need *.nix configurations
-	appvmPath := os.Getenv("GOPATH") + "/src/github.com/jollheef/appvm"
+	appvmPath := os.Getenv("GOPATH") + "/src/code.dumpstack.io/tools/appvm"
 
 	// Copy templates
 	err := prepareTemplates(appvmPath)

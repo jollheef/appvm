@@ -33,17 +33,17 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
 ## Install appvm tool
 
-    $ go get github.com/jollheef/appvm
+    $ go get code.dumpstack.io/tools/appvm
 
 ## Update appvm tool
 
-    $ go get -u github.com/jollheef/appvm
+    $ go get -u code.dumpstack.io/tools/appvm
 
 ## Generate resolution
 
 By default uses 1920x1080. If you need to regenerate `appvm/nix/monitor.nix`:
 
-    $ $GOPATH/src/github.com/jollheef/appvm/generate-resolution.sh 3840 2160 > $GOPATH/src/github.com/jollheef/appvm/nix/monitor.nix
+    $ $GOPATH/src/code.dumpstack.io/tools/appvm/generate-resolution.sh 3840 2160 > $GOPATH/src/code.dumpstack.io/tools/appvm/nix/monitor.nix
 
 Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a X.org monitor section.
 
@@ -52,7 +52,7 @@ Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a
     $ appvm start chromium --verbose
     $ # ... long wait for first time, because we need to collect a lot of packages
 
-You can customize local settings in `$GOPATH/github.com/jollheef/appvm/nix/local.nix`.
+You can customize local settings in `$GOPATH/code.dumpstack.io/tools/appvm/nix/local.nix`.
 
 Default hotkey to release cursor: ctrl+alt.
 
