@@ -206,7 +206,7 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 
 	syscall.Unlink("result")
 
-	qcow2 = "/tmp/.appvm.fake.qcow2"
+	qcow2 = os.Getenv("HOME") + "/appvm/.fake.qcow2"
 	if _, err = os.Stat(qcow2); os.IsNotExist(err) {
 		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "512M")
 		err = os.Chmod(qcow2, 0400) // qemu run with -snapshot, we only need it for create /dev/vda
