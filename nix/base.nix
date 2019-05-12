@@ -5,8 +5,6 @@
     <nix/local.nix>
   ];
 
-  system.nixos.stateVersion = "18.03";
-
   services.xserver = {
     enable = true;
     desktopManager.xterm.enable = false;
