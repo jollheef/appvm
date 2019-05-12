@@ -8,6 +8,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -190,6 +191,13 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 	status := <-command.Start()
 	if status.Error != nil || status.Exit != 0 {
 		log.Println(status.Error, status.Stdout, status.Stderr)
+		if status.Error != nil {
+			err = status.Error
+		} else {
+			s := fmt.Sprintf("ret code: %d, out: %v, err: %v",
+				status.Exit, status.Stdout, status.Stderr)
+			err = errors.New(s)
+		}
 		return
 	}
 
