@@ -111,7 +111,7 @@ func list(l *libvirt.Libvirt) {
 
 	fmt.Println("Started VM:")
 	for _, d := range domains {
-		if d.Name[0:5] == "appvm" {
+		if strings.HasPrefix(d.Name, "appvm") {
 			fmt.Println("\t", d.Name[6:])
 		}
 	}
