@@ -47,7 +47,7 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
     $ appvm start chromium --verbose
     $ # ... long wait for first time, because we need to collect a lot of packages
 
-You can customize local settings in `$GOPATH/code.dumpstack.io/tools/appvm/nix/local.nix`.
+You can customize local settings in **~/.config/appvm/nix/local.nix**.
 
 Default hotkey to release cursor: ctrl+alt.
 
