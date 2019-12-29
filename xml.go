@@ -6,7 +6,6 @@ import "fmt"
 // Believe me, you shouldn't.
 
 func generateXML(name, vmNixPath, reginfo, img, sharedDir string) string {
-	// TODO: Define XML in go
 	return fmt.Sprintf(xmlTmpl, "appvm_"+name, vmNixPath, vmNixPath, vmNixPath,
 		reginfo, img, sharedDir, sharedDir, sharedDir)
 }

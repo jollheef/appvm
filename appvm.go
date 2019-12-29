@@ -106,11 +106,7 @@ func list(l *libvirt.Libvirt) {
 	}
 
 	for _, f := range files {
-		if f.Name() != "base.nix" &&
-			f.Name() != "local.nix" &&
-			f.Name() != "local.nix.template" {
-			fmt.Println("\t", f.Name()[0:len(f.Name())-4])
-		}
+		fmt.Println("\t", f.Name()[0:len(f.Name())-4])
 	}
 }
 
@@ -264,7 +260,6 @@ func stupidProgressBar() {
 }
 
 func start(l *libvirt.Libvirt, name string, verbose bool) {
-	// Currently binary-only installation is not supported, because we need *.nix configurations
 	appvmPath := configDir
 
 	// Copy templates
@@ -317,7 +312,7 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Application VM", "Used memory", "Current memory", "Max memory", "New memory"})
 	for _, d := range domains {
-		if d.Name[0:5] == "appvm" {
+		if strings.HasPrefix(d.Name, "appvm_") {
 			name := d.Name[6:]
 
 			memoryUsedRaw, err := ioutil.ReadFile(os.Getenv("HOME") + "/appvm/" + name + "/.memory_used")
