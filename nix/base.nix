@@ -70,6 +70,9 @@ startup = do
   };
 
   systemd.user.services."xrandr" = {
+    serviceConfig = {
+      StartLimitBurst = 100;
+    };
     script = "${pkgs.xorg.xrandr}/bin/xrandr --output Virtual-1 --mode $(${pkgs.xorg.xrandr}/bin/xrandr | grep '   ' | head -n 2 | tail -n 1 | ${pkgs.gawk}/bin/awk '{ print $1 }')";
   };
 
