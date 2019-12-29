@@ -118,7 +118,7 @@ func copyFile(from, to string) (err error) {
 
 func prepareTemplates(appvmPath string) (err error) {
 	if _, err = os.Stat(appvmPath + "/nix/local.nix"); os.IsNotExist(err) {
-		err = copyFile(appvmPath+"/nix/local.nix.template", appvmPath+"/nix/local.nix")
+		err = ioutil.WriteFile(configDir+"/nix/local.nix", local_nix_template, 0644)
 		if err != nil {
 			return
 		}
@@ -143,7 +143,7 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 	log.Print(vmConfigPath)
 	command := cmd.NewCmdOptions(cmd.Options{Buffered: false, Streaming: true},
 		"nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
-		"-I", "nixos-config="+vmConfigPath, "-I", ".")
+		"-I", "nixos-config="+vmConfigPath, "-I", configDir)
 	if verbose {
 		go streamStdOutErr(command)
 	}
@@ -232,7 +232,7 @@ func stupidProgressBar() {
 
 func start(l *libvirt.Libvirt, name string, verbose bool) {
 	// Currently binary-only installation is not supported, because we need *.nix configurations
-	appvmPath := os.Getenv("GOPATH") + "/src/code.dumpstack.io/tools/appvm"
+	appvmPath := configDir
 
 	// Copy templates
 	err := prepareTemplates(appvmPath)
@@ -327,8 +327,17 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 	table.Render()
 }
 
+var configDir = os.Getenv("HOME") + "/.config/appvm/"
+
 func main() {
 	os.Mkdir(os.Getenv("HOME")+"/appvm", 0700)
+
+	os.MkdirAll(configDir+"/nix", 0700)
+
+	err := ioutil.WriteFile(configDir+"/nix/base.nix", base_nix, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	c, err := net.DialTimeout("unix", "/var/run/libvirt/libvirt-sock", time.Second)
 	if err != nil {

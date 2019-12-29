@@ -1,3 +1,6 @@
+package main
+
+var base_nix = []byte(`
 {pkgs, ...}:
 {
   imports = [
@@ -87,3 +90,4 @@ startup = do
     wantedBy = ["timers.target"];
   };
 }
+`)
