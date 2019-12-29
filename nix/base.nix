@@ -52,8 +52,9 @@ startup = do
       ConditionFileNotEmpty = "!/home/user/.xmonad/xmonad.hs";
       ExecStart = "/bin/sh -c 'mkdir -p /home/user/.xmonad && ln -s /etc/xmonad.hs /home/user/.xmonad/xmonad.hs'";
       RemainAfterExit = "yes";
-      Type = "oneshot";
       User = "user";
+      Restart = "on-failure";
+      TimeoutSec = 10;
     };
     wantedBy = [ "multi-user.target" ];
   };
