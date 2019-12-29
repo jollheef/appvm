@@ -98,6 +98,43 @@ var xmlTmpl = `
 </domain>
 `
 
+func evalNix(expr string) (s string) {
+	command := exec.Command("nix", "eval", expr)
+	bytes, _ := command.Output()
+	s = string(bytes)
+	return
+}
+
+// Gets an expression returning AppVM config path
+func getAppVMExpressionPath(name string) string {
+	paths := strings.Split(os.Getenv("APPVM_CONFIGS"), ":")
+	for _, a := range paths {
+		searchpath := a + "/nix"
+		log.Print("Searching " + searchpath + " for expressions")
+		if _, err := os.Stat(searchpath); os.IsExist(err) {
+			exprpath := searchpath + "/" + name + ".nix"
+
+			if os.Stat(exprpath); os.IsExist(err) {
+				return exprpath
+			}
+
+		}
+		log.Print("Local repo " + searchpath + " doesn't have a nix expression for " + name)
+	}
+	log.Print("Trying to use remote repo config")
+
+	fetchFormat := "(builtins.fetchurl \"raw.githubusercontent.com/%[1]s/%[2]s/master/nix/%[3]s.nix\" )"
+	splitString := strings.Split(name, "/")
+
+	if len(splitString) != 3 {
+		// nope, not a repo format
+		return evalNix(fmt.Sprintf(fetchFormat, "jollheef", "appvm", name))
+	}
+
+	return evalNix(fmt.Sprintf(fetchFormat, splitString[0], splitString[1], splitString[2]))
+
+}
+
 func generateXML(name, vmNixPath, reginfo, img, sharedDir string) string {
 	// TODO: Define XML in go
 	return fmt.Sprintf(xmlTmpl, "appvm_"+name, vmNixPath, vmNixPath, vmNixPath,
