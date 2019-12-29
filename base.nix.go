@@ -40,14 +40,6 @@ startup = do
   spawn "${pkgs.spice-vdagent}/bin/spice-vdagent"
   '';
 
-  environment.systemPackages = [ pkgs.bc ];
-  services.cron = {
-    enable = true;
-    systemCronJobs = [
-      "* * * * *      root    free -m | grep Mem | awk '{print $2 \"-\" $4}' | bc > /home/user/.memory_used"
-    ];
-  };
-
   systemd.services.home-user-build-xmonad = {
     description = "Link xmonad configuration";
     serviceConfig = {
@@ -85,6 +77,28 @@ startup = do
       OnBootSec = "1s";
       OnUnitInactiveSec = "1s";
       Unit = "xrandr.service";
+      AccuracySec = "1us";
+    };
+    wantedBy = ["timers.target"];
+  };
+
+  systemd.services."autoballoon" = {
+    serviceConfig = {
+      StartLimitBurst = 100;
+    };
+    script = ''
+      ${pkgs.procps}/bin/free -m | grep Mem | \
+        ${pkgs.gawk}/bin/awk '{print $2 "-" $4}' | \
+        ${pkgs.bc}/bin/bc > /home/user/.memory_used
+    '';
+  };
+
+  systemd.timers."autoballoon" = {
+    description = "Auto update resolution crutch";
+    timerConfig = {
+      OnBootSec = "1s";
+      OnUnitInactiveSec = "1s";
+      Unit = "autoballoon.service";
       AccuracySec = "1us";
     };
     wantedBy = ["timers.target"];
