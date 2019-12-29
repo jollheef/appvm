@@ -1,7 +1,6 @@
 {pkgs, ...}:
 {
   imports = [
-    <nix/monitor.nix>
     <nix/local.nix>
   ];
 

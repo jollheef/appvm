@@ -42,14 +42,6 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
     $ go get -u code.dumpstack.io/tools/appvm
 
-## Generate resolution
-
-By default uses 1920x1080. If you need to regenerate `appvm/nix/monitor.nix`:
-
-    $ $GOPATH/src/code.dumpstack.io/tools/appvm/generate-resolution.sh 3840 2160 > $GOPATH/src/code.dumpstack.io/tools/appvm/nix/monitor.nix
-
-Autodetection is a bash-spaghetti, so you need to check results. BTW it's just a X.org monitor section.
-
 ## Run application
 
     $ appvm start chromium --verbose
