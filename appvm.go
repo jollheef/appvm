@@ -77,7 +77,7 @@ func getAppVMExpressionPath(name string) (paths []string, config string) {
 		}
 
 		paths = []string{path}
-		config = oomph + "/nix/" + name + ".nix"
+		config = path + "/nix/" + name + ".nix"
 
 		return
 	}
