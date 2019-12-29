@@ -99,7 +99,7 @@ var xmlTmpl = `
 `
 
 func evalNix(expr string) (s string) {
-	command := exec.Command("nix", "eval", expr)
+	command := exec.Command("nix", "eval", "--raw", expr)
 	bytes, _ := command.Output()
 	s = string(bytes)
 	return
@@ -213,9 +213,11 @@ func streamStdOutErr(command *cmd.Cmd) {
 }
 
 func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err error) {
+	vmConfigPath := getAppVMExpressionPath(name)
+	log.Print(vmConfigPath)
 	command := cmd.NewCmdOptions(cmd.Options{Buffered: false, Streaming: true},
 		"nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
-		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
+		"-I", "nixos-config="+vmConfigPath, "-I", ".")
 	if verbose {
 		go streamStdOutErr(command)
 	}
