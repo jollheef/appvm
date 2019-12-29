@@ -35,7 +35,7 @@ main = xmonad defaultConfig
 
 startup :: X ()
 startup = do
-  spawn "spice-vdagent"
+  spawn "${pkgs.spice-vdagent}/bin/spice-vdagent"
   '';
 
   environment.systemPackages = [ pkgs.bc ];
