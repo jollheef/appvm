@@ -227,7 +227,6 @@ func stupidProgressBar() {
 }
 
 func start(l *libvirt.Libvirt, name string, verbose bool) {
-	// Currently binary-only installation is not supported, because we need *.nix configurations
 	appvmPath := configDir
 
 	// Copy templates
