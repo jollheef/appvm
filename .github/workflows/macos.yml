@@ -9,5 +9,8 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Fetch dependencies
+      run: go get .
+
     - name: Build
       run: go build
