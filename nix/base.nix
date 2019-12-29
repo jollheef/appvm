@@ -47,7 +47,7 @@ startup = do
   };
 
   systemd.services.home-user-build-xmonad = {
-    description = "Create and xmonad configuration";
+    description = "Link xmonad configuration";
     serviceConfig = {
       ConditionFileNotEmpty = "!/home/user/.xmonad/xmonad.hs";
       ExecStart = "/bin/sh -c 'mkdir -p /home/user/.xmonad && ln -s /etc/xmonad.hs /home/user/.xmonad/xmonad.hs'";
