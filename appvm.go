@@ -8,6 +8,7 @@
 package main
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -30,24 +31,31 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-func evalNix(expr string) (s string) {
-	command := exec.Command("nix", "eval", "--raw", expr)
-	bytes, _ := command.Output()
-	s = string(bytes)
+func evalNix(expr string) (value string, err error) {
+	command := exec.Command("nix", "eval", "--raw", "(toString ("+expr+"))")
+	log.Print("Evaluating " + expr)
+	var stdout bytes.Buffer
+	command.Stdout = &stdout
+	err = command.Run()
+	value = stdout.String()
 	return
 }
 
 // Gets an expression returning AppVM config path
-func getAppVMExpressionPath(name string) string {
-	paths := strings.Split(os.Getenv("APPVM_CONFIGS"), ":")
-	for _, a := range paths {
-		searchpath := a + "/nix"
-		log.Print("Searching " + searchpath + " for expressions")
-		if _, err := os.Stat(searchpath); os.IsExist(err) {
-			exprpath := searchpath + "/" + name + ".nix"
+func getAppVMExpressionPath(name string) (paths []string, config string) {
+	paths = strings.Split(os.Getenv("NIX_PATH"), ":")
+	config = "nix/" + name + ".nix"
 
-			if os.Stat(exprpath); os.IsExist(err) {
-				return exprpath
+	for _, a := range paths {
+		searchpath := a
+		log.Print("Searching " + searchpath + " for expressions")
+		if _, err := os.Stat(searchpath); !os.IsNotExist(err) {
+			exprpath := searchpath + "/nix/" + name + ".nix"
+			log.Print("File exists?: ", exprpath)
+			if _, err := os.Stat(exprpath); !os.IsNotExist(err) {
+				log.Print("File exists: ", exprpath)
+				config = exprpath
+				return
 			}
 
 		}
@@ -55,15 +63,26 @@ func getAppVMExpressionPath(name string) string {
 	}
 	log.Print("Trying to use remote repo config")
 
-	fetchFormat := "(builtins.fetchurl \"raw.githubusercontent.com/%[1]s/%[2]s/master/nix/%[3]s.nix\" )"
+	rev := "1251a21abadc15b7187d485317434c9befd0f6b2"
+	fetchFormat := "(builtins.fetchTarball \"https://github.com/%[1]s/%[2]s/archive/" + rev + ".tar.gz\")"
 	splitString := strings.Split(name, "/")
 
 	if len(splitString) != 3 {
 		// nope, not a repo format
-		return evalNix(fmt.Sprintf(fetchFormat, "jollheef", "appvm", name))
+		path, err := evalNix(fmt.Sprintf(fetchFormat, "jollheef", "appvm", name))
+
+		if err != nil {
+			log.Fatal("OH NO ", err)
+			return
+		}
+
+		paths = []string{path}
+		config = oomph + "/nix/" + name + ".nix"
+
+		return
 	}
 
-	return evalNix(fmt.Sprintf(fetchFormat, splitString[0], splitString[1], splitString[2]))
+	return
 
 }
 
@@ -139,11 +158,25 @@ func streamStdOutErr(command *cmd.Cmd) {
 }
 
 func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err error) {
-	vmConfigPath := getAppVMExpressionPath(name)
-	log.Print(vmConfigPath)
+	paths, config := getAppVMExpressionPath(name)
+
+	nixargs := []string{
+		"<nixpkgs/nixos>",
+		"-A", "config.system.build.vm",
+		"-I", "nixos-config=" + config,
+		// Taking local config from home folder
+		"-I" + os.Getenv("HOME"),
+	}
+
+	for _, path := range paths {
+		nixargs = append(nixargs, "-I", path)
+	}
+
 	command := cmd.NewCmdOptions(cmd.Options{Buffered: false, Streaming: true},
-		"nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
-		"-I", "nixos-config="+vmConfigPath, "-I", configDir)
+		"nix-build",
+		nixargs...,
+	)
+
 	if verbose {
 		go streamStdOutErr(command)
 	}
