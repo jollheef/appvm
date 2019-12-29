@@ -17,6 +17,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"syscall"
@@ -206,11 +207,18 @@ func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err
 		return
 	}
 
-	// TODO: Use go regex
-	reginfo, _, _, err = system.System("sh", "-c", "cat result/bin/run-nixos-vm | grep -o 'regInfo=.*/registration'")
+	bytes, err := ioutil.ReadFile("result/bin/run-nixos-vm")
 	if err != nil {
 		return
 	}
+
+	match := regexp.MustCompile("regInfo=.*/registration").FindSubmatch(bytes)
+	if len(match) != 1 {
+		err = errors.New("should be one reginfo")
+		return
+	}
+
+	reginfo = string(match[0])
 
 	syscall.Unlink("result")
 
