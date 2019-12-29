@@ -361,6 +361,8 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 }
 
 func main() {
+	os.Mkdir(os.Getenv("HOME")+"/appvm", 0700)
+
 	c, err := net.DialTimeout("unix", "/var/run/libvirt/libvirt-sock", time.Second)
 	if err != nil {
 		log.Fatal(err)
