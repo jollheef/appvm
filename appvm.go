@@ -280,7 +280,7 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 	table := tablewriter.NewWriter(os.Stdout)
 	table.SetHeader([]string{"Application VM", "Used memory", "Current memory", "Max memory", "New memory"})
 	for _, d := range domains {
-		if d.Name[0:5] == "appvm" {
+		if strings.HasPrefix(d.Name, "appvm_") {
 			name := d.Name[6:]
 
 			memoryUsedRaw, err := ioutil.ReadFile(os.Getenv("HOME") + "/appvm/" + name + "/.memory_used")
