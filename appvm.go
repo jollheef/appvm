@@ -324,7 +324,7 @@ func start(l *libvirt.Libvirt, name string, verbose bool) {
 		}
 	}
 
-	cmd := exec.Command("virt-viewer", "appvm_"+name)
+	cmd := exec.Command("virt-viewer", "-c", "qemu:///system", "appvm_"+name)
 	cmd.Start()
 }
 
