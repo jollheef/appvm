@@ -87,11 +87,7 @@ func list(l *libvirt.Libvirt) {
 	}
 
 	for _, f := range files {
-		if f.Name() != "base.nix" &&
-			f.Name() != "local.nix" &&
-			f.Name() != "local.nix.template" {
-			fmt.Println("\t", f.Name()[0:len(f.Name())-4])
-		}
+		fmt.Println("\t", f.Name()[0:len(f.Name())-4])
 	}
 }
 
