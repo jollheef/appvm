@@ -102,12 +102,20 @@ func list(l *libvirt.Libvirt) {
 	}
 
 	fmt.Println("\nAvailable VM:")
-	files, err := ioutil.ReadDir(os.Getenv("GOPATH") + "/src/code.dumpstack.io/tools/appvm/nix")
+	files, err := ioutil.ReadDir(configDir + "/nix")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	for _, f := range files {
+		switch f.Name() {
+		case "base.nix":
+			continue
+		case "local.nix":
+			continue
+
+		}
+
 		fmt.Println("\t", f.Name()[0:len(f.Name())-4])
 	}
 }
