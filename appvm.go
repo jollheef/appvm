@@ -8,7 +8,6 @@
 package main
 
 import (
-	"bytes"
 	"errors"
 	"fmt"
 	"io"
@@ -30,63 +29,6 @@ import (
 	"github.com/olekukonko/tablewriter"
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
-
-func evalNix(expr string) (value string, err error) {
-	command := exec.Command("nix", "eval", "--raw", "(toString ("+expr+"))")
-	log.Print("Evaluating " + expr)
-	var stdout bytes.Buffer
-	command.Stdout = &stdout
-	err = command.Run()
-	value = stdout.String()
-	return
-}
-
-// Gets an expression returning AppVM config path
-func getAppVMExpressionPath(name string) (paths []string, config string) {
-	paths = strings.Split(os.Getenv("NIX_PATH"), ":")
-	config = "nix/" + name + ".nix"
-
-	paths = append(paths, configDir)
-
-	for _, a := range paths {
-		searchpath := a
-		log.Print("Searching " + searchpath + " for expressions")
-		if _, err := os.Stat(searchpath); !os.IsNotExist(err) {
-			exprpath := searchpath + "/nix/" + name + ".nix"
-			log.Print("File exists?: ", exprpath)
-			if _, err := os.Stat(exprpath); !os.IsNotExist(err) {
-				log.Print("File exists: ", exprpath)
-				config = exprpath
-				return
-			}
-
-		}
-		log.Print("Local repo " + searchpath + " doesn't have a nix expression for " + name)
-	}
-	log.Print("Trying to use remote repo config")
-
-	rev := "1251a21abadc15b7187d485317434c9befd0f6b2"
-	fetchFormat := "(builtins.fetchTarball \"https://github.com/%[1]s/%[2]s/archive/" + rev + ".tar.gz\")"
-	splitString := strings.Split(name, "/")
-
-	if len(splitString) != 3 {
-		// nope, not a repo format
-		path, err := evalNix(fmt.Sprintf(fetchFormat, "jollheef", "appvm", name))
-
-		if err != nil {
-			log.Fatal("OH NO ", err)
-			return
-		}
-
-		paths = []string{path}
-		config = path + "/nix/" + name + ".nix"
-
-		return
-	}
-
-	return
-
-}
 
 func list(l *libvirt.Libvirt) {
 	domains, err := l.Domains()
@@ -164,24 +106,9 @@ func streamStdOutErr(command *cmd.Cmd) {
 }
 
 func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err error) {
-	paths, config := getAppVMExpressionPath(name)
-
-	nixargs := []string{
-		"<nixpkgs/nixos>",
-		"-A", "config.system.build.vm",
-		"-I", "nixos-config=" + config,
-		// Taking local config from home folder
-		"-I" + os.Getenv("HOME"),
-	}
-
-	for _, path := range paths {
-		nixargs = append(nixargs, "-I", path)
-	}
-
 	command := cmd.NewCmdOptions(cmd.Options{Buffered: false, Streaming: true},
-		"nix-build",
-		nixargs...,
-	)
+		"nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
+		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
 
 	if verbose {
 		go streamStdOutErr(command)
