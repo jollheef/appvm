@@ -390,9 +390,15 @@ func main() {
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
 
+	generateCommand := kingpin.Command("generate", "Generate appvm definition")
+	generateName := generateCommand.Arg("name", "Nix package name").Required().String()
+	generateBin := generateCommand.Arg("bin", "Binary").Default("").String()
+
 	switch kingpin.Parse() {
 	case "list":
 		list(l)
+	case "generate":
+		generate(l, *generateName, *generateBin)
 	case "start":
 		start(l, *startName, *startVerbose)
 	case "stop":

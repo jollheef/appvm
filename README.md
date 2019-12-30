@@ -7,8 +7,6 @@ Simple application VMs (hypervisor-based sandbox) based on Nix package manager.
 
 Uses one **read-only** /nix directory for all appvms. So creating a new appvm (but not first) is just about one minute.
 
-Currently optimized for full screen usage (but remote-viewer has ability to resize window dynamically without change resolution).
-
 ![appvm screenshot](screenshots/2018-07-05.png)
 
 ## Dependencies
@@ -82,18 +80,8 @@ to crontab like that:
         <nix/base.nix>
       ];
 
-      environment.systemPackages = [ pkgs.chromium ];
-      services.xserver.displayManager.sessionCommands = "while [ 1 ]; do ${pkgs.chromium}/bin/chromium; done &";
+      services.xserver.displayManager.sessionCommands =
+        "while [ 1 ]; do ${pkgs.chromium}/bin/chromium; done &";
     }
 
 For create new app you should add package name (search at https://nixos.org/nixos/packages.html) and path to binary (typically same as package name).
-
-## Defined applications (pull requests are welcome!)
-
-* chromium
-* thunderbird
-* tdesktop
-* evince
-* libreoffice
-* wire
-* torbrowser
