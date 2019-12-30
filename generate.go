@@ -88,6 +88,16 @@ func generate(l *libvirt.Libvirt, name, bin string) {
 	}
 
 	realName := strings.Split(name, ".")[1]
+	appFilename := configDir + "/nix/" + realName + ".nix"
 
-	fmt.Printf(template, realName, bin)
+	appNixConfig := fmt.Sprintf(template, realName, bin)
+
+	err = ioutil.WriteFile(appFilename, []byte(appNixConfig), 0600)
+	if err != nil {
+		log.Println(err)
+		return
+	}
+
+	fmt.Print(appNixConfig + "\n")
+	log.Println("Configuration file is saved to", appFilename)
 }

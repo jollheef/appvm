@@ -46,6 +46,8 @@ func getAppVMExpressionPath(name string) (paths []string, config string) {
 	paths = strings.Split(os.Getenv("NIX_PATH"), ":")
 	config = "nix/" + name + ".nix"
 
+	paths = append(paths, configDir)
+
 	for _, a := range paths {
 		searchpath := a
 		log.Print("Searching " + searchpath + " for expressions")
