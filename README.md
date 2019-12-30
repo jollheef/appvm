@@ -40,6 +40,12 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
     $ go get -u code.dumpstack.io/tools/appvm
 
+## Generate new application
+
+	$ nix-channel --list
+	nix https://nixos.org/channels/nixos-unstable
+    $ appvm generate nix.firefox
+
 ## Run application
 
     $ appvm start chromium --verbose
