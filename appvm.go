@@ -403,12 +403,13 @@ func main() {
 	generateCommand := kingpin.Command("generate", "Generate appvm definition")
 	generateName := generateCommand.Arg("name", "Nix package name").Required().String()
 	generateBin := generateCommand.Arg("bin", "Binary").Default("").String()
+	generateVMName := generateCommand.Flag("vm", "Use VM Name").Default("").String()
 
 	switch kingpin.Parse() {
 	case "list":
 		list(l)
 	case "generate":
-		generate(l, *generateName, *generateBin)
+		generate(l, *generateName, *generateBin, *generateVMName)
 	case "start":
 		start(l, *startName, *startVerbose)
 	case "stop":

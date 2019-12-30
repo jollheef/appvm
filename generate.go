@@ -42,7 +42,7 @@ func nixPath(name string) (path string, err error) {
 	return
 }
 
-func generate(l *libvirt.Libvirt, name, bin string) {
+func generate(l *libvirt.Libvirt, name, bin, vmname string) {
 	if !isPackageExists(name) {
 		log.Println("Package pkgs."+name, "does not exists")
 		return
@@ -88,7 +88,13 @@ func generate(l *libvirt.Libvirt, name, bin string) {
 	}
 
 	realName := strings.Split(name, ".")[1]
-	appFilename := configDir + "/nix/" + realName + ".nix"
+
+	var appFilename string
+	if vmname != "" {
+		appFilename = configDir + "/nix/" + vmname + ".nix"
+	} else {
+		appFilename = configDir + "/nix/" + realName + ".nix"
+	}
 
 	appNixConfig := fmt.Sprintf(template, realName, bin)
 
