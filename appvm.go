@@ -372,7 +372,12 @@ func main() {
 
 	os.MkdirAll(configDir+"/nix", 0700)
 
-	err := ioutil.WriteFile(configDir+"/nix/base.nix", base_nix, 0644)
+	err := writeBuiltinApps(configDir + "/nix")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile(configDir+"/nix/base.nix", base_nix, 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
