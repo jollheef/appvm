@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -42,9 +43,55 @@ func nixPath(name string) (path string, err error) {
 	return
 }
 
-func generate(l *libvirt.Libvirt, name, bin, vmname string) {
+func guessChannel() (channel string, err error) {
+	command := exec.Command("nix-channel", "--list")
+	bytes, err := command.Output()
+	if err != nil {
+		return
+	}
+	channels := strings.Split(string(bytes), "\n")
+	for _, line := range channels {
+		fields := strings.Fields(line)
+		if len(fields) == 2 {
+			channel = fields[0]
+			return
+		}
+	}
+
+	err = errors.New("No channel found")
+	return
+}
+
+func filterDotfiles(files []os.FileInfo) (notHiddenFiles []os.FileInfo) {
+	for _, f := range files {
+		if !strings.HasPrefix(f.Name(), ".") {
+			notHiddenFiles = append(notHiddenFiles, f)
+		}
+	}
+	return
+}
+
+func generate(l *libvirt.Libvirt, pkg, bin, vmname string) {
+	var name string
+
+	if strings.Contains(pkg, ".") {
+		name = pkg
+	} else {
+		log.Println("Package name does not contains channel")
+		log.Println("Trying to guess")
+		channel, err := guessChannel()
+		if err != nil {
+			log.Println("Cannot guess channel")
+			log.Println("Check nix-channel --list")
+			return
+		}
+
+		name = channel + "." + pkg
+		log.Println("Use", name)
+	}
+
 	if !isPackageExists(name) {
-		log.Println("Package pkgs."+name, "does not exists")
+		log.Println("Package", name, "does not exists")
 		return
 	}
 
@@ -63,13 +110,37 @@ func generate(l *libvirt.Libvirt, name, bin, vmname string) {
 	}
 
 	if bin == "" && len(files) != 1 {
-		fmt.Println("There's more than one binary in */bin, " +
-			"you should specify one of them explicitly")
+		fmt.Println("There's more than one binary in */bin")
 		fmt.Println("Files in", path+"/bin/:")
 		for _, f := range files {
 			fmt.Println("\t", f.Name())
 		}
-		return
+
+		log.Println("Trying to guess binary")
+		var found bool = false
+
+		notHiddenFiles := filterDotfiles(files)
+		if len(notHiddenFiles) == 1 {
+			log.Println("Use", notHiddenFiles[0].Name())
+			bin = notHiddenFiles[0].Name()
+			found = true
+		}
+
+		if !found {
+			for _, f := range files {
+				if f.Name() == pkg {
+					log.Println("Use", f.Name())
+					bin = f.Name()
+					found = true
+				}
+			}
+		}
+
+		if !found {
+			log.Println("Cannot guess in */bin, " +
+				"you should specify one of them explicitly")
+			return
+		}
 	}
 
 	if bin != "" {
