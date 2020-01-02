@@ -14,14 +14,23 @@ import (
 
 var template = `
 {pkgs, ...}:
-{
+let
+  application = "${pkgs.%s}/bin/%s";
+  appRunner = pkgs.writeShellScriptBin "app" ''
+    ARGS_FILE=/home/user/.args
+    ARGS=$(cat $ARGS_FILE)
+    rm $ARGS_FILE
+
+    ${application} $ARGS
+    systemctl poweroff
+  '';
+in {
   imports = [
     <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
     <nix/base.nix>
   ];
 
-  services.xserver.displayManager.sessionCommands =
-    "while [ 1 ]; do ${pkgs.%s}/bin/%s; done &";
+  services.xserver.displayManager.sessionCommands = "${appRunner}/bin/app &";
 }
 `
 
