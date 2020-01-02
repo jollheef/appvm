@@ -83,19 +83,3 @@ to crontab like that:
 
     $ crontab -l
     * * * * * /home/user/dev/go/bin/appvm autoballoon
-
-# App description
-
-    $ cat nix/chromium.nix
-    {pkgs, ...}:
-    {
-      imports = [
-        <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
-        <nix/base.nix>
-      ];
-
-      services.xserver.displayManager.sessionCommands =
-        "while [ 1 ]; do ${pkgs.chromium}/bin/chromium; done &";
-    }
-
-For create new app you should add package name (search at https://nixos.org/nixos/packages.html) and path to binary (typically same as package name).

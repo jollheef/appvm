@@ -15,25 +15,32 @@ var builtin_chromium_nix = app{
 	Name: "chromium",
 	Nix: []byte(`
 {pkgs, ...}:
-{
+let
+  application = "${pkgs.chromium}/bin/chromium";
+  appRunner = pkgs.writeShellScriptBin "app" ''
+    ARGS_FILE=/home/user/.args
+    ARGS=$(cat $ARGS_FILE)
+    rm $ARGS_FILE
+
+    ${application} $ARGS
+    systemctl poweroff
+  '';
+in {
   imports = [
     <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
     <nix/base.nix>
   ];
 
-  environment.etc."chromium/policies/managed/plugins.json".text = ''
-{
-    "ExtensionInstallForcelist": [
-        // uBlock Origin (https://chrome.google.com/webstore/detail/ublock-origin/cjpalhdlnbpafiamejdnhcphjbkeiagm)
-        "cjpalhdlnbpafiamejdnhcphjbkeiagm;https://clients2.google.com/service/update2/crx",
-        // HTTPS Everywhere (https://chrome.google.com/webstore/detail/https-everywhere/gcbommkclmclpchllfjekcdonpmejbdp)
-        "gcbommkclmclpchllfjekcdonpmejbdp;https://clients2.google.com/service/update2/crx",
-    ]
-}
-  '';
+  programs.chromium = {
+    enable = true;
+    extensions = [
+      "cjpalhdlnbpafiamejdnhcphjbkeiagm" # uBlock Origin
+      "gcbommkclmclpchllfjekcdonpmejbdp" # HTTPS Everywhere
+      "fihnjjcciajhdojfnbdddfaoknhalnja" # I don't care about cookies
+    ];
+  };
 
-  environment.systemPackages = [ pkgs.chromium ];
-  services.xserver.displayManager.sessionCommands = "while [ 1 ]; do ${pkgs.chromium}/bin/chromium; done &";
+  services.xserver.displayManager.sessionCommands = "${appRunner}/bin/app &";
 }
 `),
 }
