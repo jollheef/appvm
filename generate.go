@@ -132,7 +132,6 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
 		if !found {
 			for _, f := range files {
 				parts := strings.Split(pkg, ".")
-				log.Println("pkg", parts[len(parts)-1])
 				if f.Name() == parts[len(parts)-1] {
 					log.Println("Use", f.Name())
 					bin = f.Name()
