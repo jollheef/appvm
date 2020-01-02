@@ -131,7 +131,9 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
 
 		if !found {
 			for _, f := range files {
-				if f.Name() == pkg {
+				parts := strings.Split(pkg, ".")
+				log.Println("pkg", parts[len(parts)-1])
+				if f.Name() == parts[len(parts)-1] {
 					log.Println("Use", f.Name())
 					bin = f.Name()
 					found = true
@@ -161,7 +163,16 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
 		bin = files[0].Name()
 	}
 
-	realName := strings.Split(name, ".")[1]
+	var realName string
+	for i, s := range strings.Split(name, ".") {
+		if i == 0 {
+			continue
+		}
+		if i != 1 {
+			realName += "."
+		}
+		realName += s
+	}
 
 	var appFilename string
 	if vmname != "" {
