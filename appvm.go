@@ -165,7 +165,9 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 	return err == nil
 }
 
-func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose bool) (err error) {
+func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose,
+	online bool) (err error) {
+
 	err = os.Chdir(appvmPath)
 	if err != nil {
 		return
@@ -179,7 +181,7 @@ func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose bool) (er
 	sharedDir := fmt.Sprintf(os.Getenv("HOME") + "/appvm/" + name)
 	os.MkdirAll(sharedDir, 0700)
 
-	xml := generateXML(name, realpath, reginfo, qcow2, sharedDir)
+	xml := generateXML(name, online, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
 	return
 }
@@ -208,7 +210,9 @@ func isAppvmConfigurationExists(appvmPath, name string) bool {
 	return fileExists(appvmPath + "/nix/" + name + ".nix")
 }
 
-func start(l *libvirt.Libvirt, name string, verbose bool, args, open string) {
+func start(l *libvirt.Libvirt, name string, verbose, online bool,
+	args, open string) {
+
 	appvmPath := configDir
 	vmHomePath := os.Getenv("HOME") + "/appvm/" + name + "/"
 
@@ -251,7 +255,7 @@ func start(l *libvirt.Libvirt, name string, verbose bool, args, open string) {
 		if !verbose {
 			go stupidProgressBar()
 		}
-		err = generateAppVM(l, appvmPath, name, verbose)
+		err = generateAppVM(l, appvmPath, name, verbose, online)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -399,6 +403,7 @@ func main() {
 	startQuiet := startCommand.Flag("quiet", "Less verbosity").Bool()
 	startArgs := startCommand.Flag("args", "Command line arguments").String()
 	startOpen := startCommand.Flag("open", "Pass file to application").String()
+	startOffline := startCommand.Flag("offline", "Disconnect").Bool()
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -421,7 +426,8 @@ func main() {
 	case "generate":
 		generate(l, *generateName, *generateBin, *generateVMName)
 	case "start":
-		start(l, *startName, !*startQuiet, *startArgs, *startOpen)
+		start(l, *startName, !*startQuiet, !*startOffline,
+			*startArgs, *startOpen)
 	case "stop":
 		stop(l, *stopName)
 	case "drop":

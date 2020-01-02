@@ -5,9 +5,27 @@ import "fmt"
 // You may think that you want to rewrite to proper golang structures.
 // Believe me, you shouldn't.
 
-func generateXML(name, vmNixPath, reginfo, img, sharedDir string) string {
+func generateXML(name string, online bool, vmNixPath, reginfo, img, sharedDir string) string {
+	qemuParams := `
+          <qemu:commandline>
+            <qemu:arg value='-device'/>
+            <qemu:arg value='e1000,netdev=net0'/>
+            <qemu:arg value='-netdev'/>
+            <qemu:arg value='user,id=net0'/>
+            <qemu:arg value='-snapshot'/>
+          </qemu:commandline>
+        `
+
+	if !online {
+		qemuParams = `
+                  <qemu:commandline>
+                    <qemu:arg value='-snapshot'/>
+                  </qemu:commandline>
+                `
+	}
+
 	return fmt.Sprintf(xmlTmpl, "appvm_"+name, vmNixPath, vmNixPath, vmNixPath,
-		reginfo, img, sharedDir, sharedDir, sharedDir)
+		reginfo, img, sharedDir, sharedDir, sharedDir, qemuParams)
 }
 
 var xmlTmpl = `
@@ -68,12 +86,6 @@ var xmlTmpl = `
       <target dir='home'/>
     </filesystem>
   </devices>
-  <qemu:commandline>
-    <qemu:arg value='-device'/>
-    <qemu:arg value='e1000,netdev=net0'/>
-    <qemu:arg value='-netdev'/>
-    <qemu:arg value='user,id=net0'/>
-    <qemu:arg value='-snapshot'/>
-  </qemu:commandline>
+  %s
 </domain>
 `
