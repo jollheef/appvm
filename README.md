@@ -48,7 +48,7 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
 ## Run application
 
-    $ appvm start chromium --verbose
+    $ appvm start chromium
     $ # ... long wait for first time, because we need to collect a lot of packages
 
 You can customize local settings in **~/.config/appvm/nix/local.nix**.

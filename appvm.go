@@ -327,7 +327,7 @@ func main() {
 
 	startCommand := kingpin.Command("start", "Start application")
 	startName := startCommand.Arg("name", "Application name").Required().String()
-	startVerbose := startCommand.Flag("verbose", "Increase verbosity").Default("False").Bool()
+	startQuiet := startCommand.Flag("quiet", "Less verbosity").Bool()
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -343,7 +343,7 @@ func main() {
 	case "generate":
 		generate(l, *generateName, *generateBin, *generateVMName)
 	case "start":
-		start(l, *startName, *startVerbose)
+		start(l, *startName, !*startQuiet)
 	case "stop":
 		stop(l, *stopName)
 	case "drop":
