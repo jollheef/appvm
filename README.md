@@ -40,6 +40,10 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
 
     $ go get -u code.dumpstack.io/tools/appvm
 
+## Search for applications
+
+    $ appvm search chromium
+
 ## Generate new application
 
 	$ nix-channel --list

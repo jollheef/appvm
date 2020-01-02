@@ -314,6 +314,19 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 	table.Render()
 }
 
+func search(name string) {
+	command := exec.Command("nix", "search", name)
+	bytes, err := command.Output()
+	if err != nil {
+		return
+	}
+
+	for _, line := range strings.Split(string(bytes), "\n") {
+		fmt.Println(line)
+	}
+	return
+}
+
 var configDir = os.Getenv("HOME") + "/.config/appvm/"
 
 func main() {
@@ -359,9 +372,14 @@ func main() {
 	generateBin := generateCommand.Arg("bin", "Binary").Default("").String()
 	generateVMName := generateCommand.Flag("vm", "Use VM Name").Default("").String()
 
+	searchCommand := kingpin.Command("search", "Search for application")
+	searchName := searchCommand.Arg("name", "Application name").Required().String()
+
 	switch kingpin.Parse() {
 	case "list":
 		list(l)
+	case "search":
+		search(*searchName)
 	case "generate":
 		generate(l, *generateName, *generateBin, *generateVMName)
 	case "start":
