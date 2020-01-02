@@ -196,8 +196,30 @@ func stupidProgressBar() {
 	}
 }
 
+func fileExists(filename string) bool {
+	info, err := os.Stat(filename)
+	if os.IsNotExist(err) {
+		return false
+	}
+	return !info.IsDir()
+}
+
+func isAppvmConfigurationExists(appvmPath, name string) bool {
+	return fileExists(appvmPath + "/nix/" + name + ".nix")
+}
+
 func start(l *libvirt.Libvirt, name string, verbose bool) {
 	appvmPath := configDir
+
+	if !isAppvmConfigurationExists(appvmPath, name) {
+		log.Println("No configuration exists for app, " +
+			"trying to generate")
+		err := generate(l, name, "", "")
+		if err != nil {
+			log.Println("Can't auto generate")
+			return
+		}
+	}
 
 	// Copy templates
 	err := prepareTemplates(appvmPath)

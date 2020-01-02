@@ -71,7 +71,7 @@ func filterDotfiles(files []os.FileInfo) (notHiddenFiles []os.FileInfo) {
 	return
 }
 
-func generate(l *libvirt.Libvirt, pkg, bin, vmname string) {
+func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
 	var name string
 
 	if strings.Contains(pkg, ".") {
@@ -79,7 +79,8 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) {
 	} else {
 		log.Println("Package name does not contains channel")
 		log.Println("Trying to guess")
-		channel, err := guessChannel()
+		var channel string
+		channel, err = guessChannel()
 		if err != nil {
 			log.Println("Cannot guess channel")
 			log.Println("Check nix-channel --list")
@@ -91,7 +92,9 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) {
 	}
 
 	if !isPackageExists(name) {
-		log.Println("Package", name, "does not exists")
+		s := "Package " + name + " does not exists"
+		err = errors.New(s)
+		log.Println(s)
 		return
 	}
 
@@ -177,4 +180,5 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) {
 
 	fmt.Print(appNixConfig + "\n")
 	log.Println("Configuration file is saved to", appFilename)
+	return
 }
