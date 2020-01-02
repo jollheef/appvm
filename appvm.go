@@ -208,8 +208,28 @@ func isAppvmConfigurationExists(appvmPath, name string) bool {
 	return fileExists(appvmPath + "/nix/" + name + ".nix")
 }
 
-func start(l *libvirt.Libvirt, name string, verbose bool) {
+func start(l *libvirt.Libvirt, name string, verbose bool, args, open string) {
 	appvmPath := configDir
+	vmHomePath := os.Getenv("HOME") + "/appvm/" + name + "/"
+
+	if open != "" {
+		filename := vmHomePath + filepath.Base(open)
+		err := copyFile(open, filename)
+		if err != nil {
+			log.Println("Can't copy file")
+			return
+		}
+
+		args += "/home/user/" + filepath.Base(open)
+	}
+
+	if args != "" {
+		err := ioutil.WriteFile(vmHomePath+".args", []byte(args), 0700)
+		if err != nil {
+			log.Println("Can't write args")
+			return
+		}
+	}
 
 	if !isAppvmConfigurationExists(appvmPath, name) {
 		log.Println("No configuration exists for app, " +
@@ -377,6 +397,8 @@ func main() {
 	startCommand := kingpin.Command("start", "Start application")
 	startName := startCommand.Arg("name", "Application name").Required().String()
 	startQuiet := startCommand.Flag("quiet", "Less verbosity").Bool()
+	startArgs := startCommand.Flag("args", "Command line arguments").String()
+	startOpen := startCommand.Flag("open", "Pass file to application").String()
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -399,7 +421,7 @@ func main() {
 	case "generate":
 		generate(l, *generateName, *generateBin, *generateVMName)
 	case "start":
-		start(l, *startName, !*startQuiet)
+		start(l, *startName, !*startQuiet, *startArgs, *startOpen)
 	case "stop":
 		stop(l, *stopName)
 	case "drop":
