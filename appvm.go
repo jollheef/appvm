@@ -327,6 +327,20 @@ func search(name string) {
 	return
 }
 
+func sync() {
+	err := exec.Command("nix-channel", "--update").Run()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	err = exec.Command("nix", "search", "-u").Run()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	log.Println("Done")
+}
+
 var configDir = os.Getenv("HOME") + "/.config/appvm/"
 
 func main() {
@@ -375,6 +389,8 @@ func main() {
 	searchCommand := kingpin.Command("search", "Search for application")
 	searchName := searchCommand.Arg("name", "Application name").Required().String()
 
+	kingpin.Command("sync", "Synchronize remote repos for applications")
+
 	switch kingpin.Parse() {
 	case "list":
 		list(l)
@@ -390,5 +406,7 @@ func main() {
 		drop(*dropName)
 	case "autoballoon":
 		autoBalloon(l, *minMemory*1024, *adjustPercent)
+	case "sync":
+		sync()
 	}
 }

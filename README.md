@@ -55,6 +55,10 @@ You need to **relogin** if you install virt-manager (libvirt) first time.
     $ appvm start chromium
     $ # ... long wait for first time, because we need to collect a lot of packages
 
+## Synchronize remote repos for applications
+
+    $ appvm sync
+
 You can customize local settings in **~/.config/appvm/nix/local.nix**.
 
 Default hotkey to release cursor: ctrl+alt.
