@@ -35,7 +35,11 @@ in {
 `
 
 func isPackageExists(name string) bool {
-	return nil == exec.Command("nix-env", "-iA", "--dry-run", name).Run()
+	cmd := exec.Command("nix-env", "-iA", name)
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+	err := cmd.Run()
+	return err == nil
 }
 
 func nixPath(name string) (path string, err error) {
