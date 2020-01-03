@@ -37,7 +37,7 @@ main = xmonad defaultConfig
 
 startup :: X ()
 startup = do
-  spawn "${pkgs.spice-vdagent}/bin/spice-vdagent"
+  spawn "while [ 1 ]; do ${pkgs.spice-vdagent}/bin/spice-vdagent -x; done &"
   '';
 
   systemd.services.home-user-build-xmonad = {
