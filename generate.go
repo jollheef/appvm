@@ -35,6 +35,9 @@ in {
 `
 
 func isPackageExists(name string) bool {
+	// TODO use something like a
+	// nix-build '<channel>' -A name
+	// to avoid installation to user profile
 	cmd := exec.Command("nix-env", "-iA", name)
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
