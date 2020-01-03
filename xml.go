@@ -5,7 +5,9 @@ import "fmt"
 // You may think that you want to rewrite to proper golang structures.
 // Believe me, you shouldn't.
 
-func generateXML(name string, online bool, vmNixPath, reginfo, img, sharedDir string) string {
+func generateXML(vmName string, online bool,
+	vmNixPath, reginfo, img, sharedDir string) string {
+
 	qemuParams := `
           <qemu:commandline>
             <qemu:arg value='-device'/>
@@ -24,7 +26,7 @@ func generateXML(name string, online bool, vmNixPath, reginfo, img, sharedDir st
                 `
 	}
 
-	return fmt.Sprintf(xmlTmpl, "appvm_"+name, vmNixPath, vmNixPath, vmNixPath,
+	return fmt.Sprintf(xmlTmpl, vmName, vmNixPath, vmNixPath, vmNixPath,
 		reginfo, img, sharedDir, sharedDir, sharedDir, qemuParams)
 }
 

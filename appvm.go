@@ -13,6 +13,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"math/rand"
 	"net"
 	"os"
 	"os/exec"
@@ -165,7 +166,8 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 	return err == nil
 }
 
-func generateAppVM(l *libvirt.Libvirt, name, appvmPath, sharedDir string,
+func generateAppVM(l *libvirt.Libvirt,
+	nixName, vmName, appvmPath, sharedDir string,
 	verbose, online bool) (err error) {
 
 	err = os.Chdir(appvmPath)
@@ -173,12 +175,12 @@ func generateAppVM(l *libvirt.Libvirt, name, appvmPath, sharedDir string,
 		return
 	}
 
-	realpath, reginfo, qcow2, err := generateVM(name, verbose)
+	realpath, reginfo, qcow2, err := generateVM(nixName, verbose)
 	if err != nil {
 		return
 	}
 
-	xml := generateXML(name, online, realpath, reginfo, qcow2, sharedDir)
+	xml := generateXML(vmName, online, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
 	return
 }
@@ -207,14 +209,31 @@ func isAppvmConfigurationExists(appvmPath, name string) bool {
 	return fileExists(appvmPath + "/nix/" + name + ".nix")
 }
 
-func start(l *libvirt.Libvirt, name string, verbose, online bool,
+func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
 	args, open string) {
 
 	appvmPath := configDir
-	vmHomePath := os.Getenv("HOME") + "/appvm/" + name + "/"
+
+	statelessName := fmt.Sprintf("tmp_%d_%s", rand.Int(), name)
+
+	sharedDir := os.Getenv("HOME") + "/appvm/"
+	if stateless {
+		sharedDir += statelessName
+	} else {
+		sharedDir += name
+	}
+
+	os.MkdirAll(sharedDir, 0700)
+
+	vmName := "appvm_"
+	if stateless {
+		vmName += statelessName
+	} else {
+		vmName += name
+	}
 
 	if open != "" {
-		filename := vmHomePath + filepath.Base(open)
+		filename := sharedDir + "/" + filepath.Base(open)
 		err := copyFile(open, filename)
 		if err != nil {
 			log.Println("Can't copy file")
@@ -225,7 +244,7 @@ func start(l *libvirt.Libvirt, name string, verbose, online bool,
 	}
 
 	if args != "" {
-		err := ioutil.WriteFile(vmHomePath+".args", []byte(args), 0700)
+		err := ioutil.WriteFile(sharedDir+"/"+".args", []byte(args), 0700)
 		if err != nil {
 			log.Println("Can't write args")
 			return
@@ -248,21 +267,19 @@ func start(l *libvirt.Libvirt, name string, verbose, online bool,
 		log.Fatal(err)
 	}
 
-	if !isRunning(l, name) {
+	if !isRunning(l, vmName) {
 		if !verbose {
 			go stupidProgressBar()
 		}
 
-		sharedDir := fmt.Sprintf(os.Getenv("HOME") + "/appvm/" + name)
-		os.MkdirAll(sharedDir, 0700)
-
-		err = generateAppVM(l, name, appvmPath, sharedDir, verbose, online)
+		err = generateAppVM(l, name, vmName, appvmPath, sharedDir,
+			verbose, online)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	cmd := exec.Command("virt-viewer", "-c", "qemu:///system", "appvm_"+name)
+	cmd := exec.Command("virt-viewer", "-c", "qemu:///system", vmName)
 	cmd.Start()
 }
 
@@ -366,9 +383,40 @@ func sync() {
 	log.Println("Done")
 }
 
+func cleanupStatelessVMs(l *libvirt.Libvirt) {
+	domains, err := l.Domains()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	dirs, err := ioutil.ReadDir(appvmHomesDir)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range dirs {
+		if !strings.HasPrefix(f.Name(), "tmp_") {
+			continue
+		}
+
+		alive := false
+		for _, d := range domains {
+			if d.Name == "appvm_"+f.Name() {
+				alive = true
+			}
+		}
+		if !alive {
+			os.RemoveAll(appvmHomesDir + f.Name())
+		}
+	}
+}
+
 var configDir = os.Getenv("HOME") + "/.config/appvm/"
+var appvmHomesDir = os.Getenv("HOME") + "/appvm/"
 
 func main() {
+	rand.Seed(time.Now().UnixNano())
+
 	os.Mkdir(os.Getenv("HOME")+"/appvm", 0700)
 
 	os.MkdirAll(configDir+"/nix", 0700)
@@ -394,6 +442,8 @@ func main() {
 	}
 	defer l.Disconnect()
 
+	cleanupStatelessVMs(l)
+
 	kingpin.Command("list", "List applications")
 	autoballonCommand := kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
 	minMemory := autoballonCommand.Flag("min-memory", "Set minimal memory (megabytes)").Default("1024").Uint64()
@@ -405,6 +455,7 @@ func main() {
 	startArgs := startCommand.Flag("args", "Command line arguments").String()
 	startOpen := startCommand.Flag("open", "Pass file to application").String()
 	startOffline := startCommand.Flag("offline", "Disconnect").Bool()
+	startStateless := startCommand.Flag("stateless", "Do not use default state directory").Bool()
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -427,7 +478,8 @@ func main() {
 	case "generate":
 		generate(l, *generateName, *generateBin, *generateVMName)
 	case "start":
-		start(l, *startName, !*startQuiet, !*startOffline,
+		start(l, *startName,
+			!*startQuiet, !*startOffline, *startStateless,
 			*startArgs, *startOpen)
 	case "stop":
 		stop(l, *stopName)
