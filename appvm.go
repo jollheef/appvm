@@ -165,8 +165,8 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 	return err == nil
 }
 
-func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose,
-	online bool) (err error) {
+func generateAppVM(l *libvirt.Libvirt, name, appvmPath, sharedDir string,
+	verbose, online bool) (err error) {
 
 	err = os.Chdir(appvmPath)
 	if err != nil {
@@ -177,9 +177,6 @@ func generateAppVM(l *libvirt.Libvirt, appvmPath, name string, verbose,
 	if err != nil {
 		return
 	}
-
-	sharedDir := fmt.Sprintf(os.Getenv("HOME") + "/appvm/" + name)
-	os.MkdirAll(sharedDir, 0700)
 
 	xml := generateXML(name, online, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
@@ -255,7 +252,11 @@ func start(l *libvirt.Libvirt, name string, verbose, online bool,
 		if !verbose {
 			go stupidProgressBar()
 		}
-		err = generateAppVM(l, appvmPath, name, verbose, online)
+
+		sharedDir := fmt.Sprintf(os.Getenv("HOME") + "/appvm/" + name)
+		os.MkdirAll(sharedDir, 0700)
+
+		err = generateAppVM(l, name, appvmPath, sharedDir, verbose, online)
 		if err != nil {
 			log.Fatal(err)
 		}
