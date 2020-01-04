@@ -34,15 +34,8 @@ in {
 }
 `
 
-func isPackageExists(name string) bool {
-	// TODO use something like a
-	// nix-build '<channel>' -A name
-	// to avoid installation to user profile
-	cmd := exec.Command("nix-env", "-iA", name)
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-	err := cmd.Run()
-	return err == nil
+func isPackageExists(channel, name string) bool {
+	return nil == exec.Command("nix-build", "<"+channel+">", "-A", name).Run()
 }
 
 func nixPath(name string) (path string, err error) {
@@ -84,33 +77,37 @@ func filterDotfiles(files []os.FileInfo) (notHiddenFiles []os.FileInfo) {
 }
 
 func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
-	var name string
+	// TODO refactor
+	var name, channel string
 
 	if strings.Contains(pkg, ".") {
-		name = pkg
+		channel = strings.Split(pkg, ".")[0]
+		name = strings.Join(strings.Split(pkg, ".")[1:], ".")
 	} else {
 		log.Println("Package name does not contains channel")
 		log.Println("Trying to guess")
-		var channel string
+
 		channel, err = guessChannel()
 		if err != nil {
 			log.Println("Cannot guess channel")
 			log.Println("Check nix-channel --list")
-			return
+			log.Println("Will try <nixpkgs>")
+			channel = "nixpkgs"
+			err = nil
 		}
 
-		name = channel + "." + pkg
-		log.Println("Use", name)
+		name = pkg
+		log.Println("Use", channel+"."+pkg)
 	}
 
-	if !isPackageExists(name) {
+	if !isPackageExists(channel, name) {
 		s := "Package " + name + " does not exists"
 		err = errors.New(s)
 		log.Println(s)
 		return
 	}
 
-	path, err := nixPath(name)
+	path, err := nixPath(channel + "." + name)
 	if err != nil {
 		log.Println("Cannot find nix path")
 		return
@@ -174,25 +171,14 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
 		bin = files[0].Name()
 	}
 
-	var realName string
-	for i, s := range strings.Split(name, ".") {
-		if i == 0 {
-			continue
-		}
-		if i != 1 {
-			realName += "."
-		}
-		realName += s
-	}
-
 	var appFilename string
 	if vmname != "" {
 		appFilename = configDir + "/nix/" + vmname + ".nix"
 	} else {
-		appFilename = configDir + "/nix/" + realName + ".nix"
+		appFilename = configDir + "/nix/" + name + ".nix"
 	}
 
-	appNixConfig := fmt.Sprintf(template, realName, bin)
+	appNixConfig := fmt.Sprintf(template, name, bin)
 
 	err = ioutil.WriteFile(appFilename, []byte(appNixConfig), 0600)
 	if err != nil {
