@@ -58,8 +58,10 @@ func guessChannel() (channel string, err error) {
 	for _, line := range channels {
 		fields := strings.Fields(line)
 		if len(fields) == 2 {
-			channel = fields[0]
-			return
+			if strings.Contains(fields[1], "nixos.org/channels") {
+				channel = fields[0]
+				return
+			}
 		}
 	}
 
