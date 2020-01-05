@@ -44,7 +44,21 @@ in {
     '';
   };
 
-  # TODO run ${appvm}/bin/appvm autoballoon each second
+  systemd.user.services."autoballoon" = {
+    serviceConfig.StartLimitBurst = 64;
+    script = "${appvm}/bin/appvm autoballoon";
+  };
+
+  systemd.user.timers."autoballoon" = {
+    description = "Autoupdate resolution crutch";
+    timerConfig = {
+      OnBootSec = "1s";
+      OnUnitInactiveSec = "1s";
+      Unit = "autoballoon.service";
+      AccuracySec = "1us";
+    };
+    wantedBy = ["timers.target"];
+  };
 
   environment.systemPackages = with pkgs; [
     appvm virtmanager chromium
