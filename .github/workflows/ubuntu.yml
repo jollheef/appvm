@@ -14,3 +14,15 @@ jobs:
 
     - name: Build
       run: go build
+
+  nix-build:
+    name: nix-build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v1
+
+    - name: Install Nix
+      run: curl https://nixos.org/nix/install | sh
+
+    - name: Build
+      run: sudo make nix # root required for Nix build sandbox
