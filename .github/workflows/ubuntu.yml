@@ -22,7 +22,12 @@ jobs:
     - uses: actions/checkout@v1
 
     - name: Install Nix
-      run: curl https://nixos.org/nix/install | sh
+      run: |
+        curl https://nixos.org/nix/install | sh
+        . ~/.nix-profile/etc/profile.d/nix.sh
+        nix-channel --update
 
     - name: Build
-      run: sudo make nix # root required for Nix build sandbox
+      run: |
+        . ~/.nix-profile/etc/profile.d/nix.sh
+        make nix
