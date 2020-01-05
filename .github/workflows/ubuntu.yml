@@ -48,3 +48,8 @@ jobs:
       run: |
         . ~/.nix-profile/etc/profile.d/nix.sh
         make -C os live-iso
+
+    - uses: actions/upload-artifact@v1
+      with:
+        name: $Placeholder OS Live ISO
+        path: os/appvm.iso
