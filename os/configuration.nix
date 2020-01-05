@@ -18,6 +18,7 @@ let
   });
 in {
   imports = [
+    <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
     ./target.nix
     #./hardware-configuration.nix
   ];
@@ -28,23 +29,6 @@ in {
 
   # You can not use networking.networkmanager with networking.wireless
   networking.wireless.enable = false;
-
-  systemd.services."init-nix-channels" = {
-    enable = true;
-    serviceConfig = {
-      ExecStartPre = "${pkgs.su}/bin/su root -c '${pkgs.nix}/bin/nix-channel --update'";
-      ExecStart = "/bin/sh";
-      Restart = "on-failure";
-      RestartSec = "5";
-      TimeoutSec = "120";
-    };
-  };
-
-  systemd.timers."init-nix-channels" = {
-    timerConfig.OnBootSec = "30s";
-    timerConfig.Unit = "init-nix-channels.service";
-    wantedBy = ["timers.target"];
-  };
 
   users.users.user = {
     isNormalUser = true;
