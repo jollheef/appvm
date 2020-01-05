@@ -318,17 +318,20 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 
 			memoryUsedRaw, err := ioutil.ReadFile(os.Getenv("HOME") + "/appvm/" + name + "/.memory_used")
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				continue
 			}
 			memoryUsedMiB, err := strconv.Atoi(string(memoryUsedRaw[0 : len(memoryUsedRaw)-1]))
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				continue
 			}
 			memoryUsed := memoryUsedMiB * 1024
 
 			_, memoryMax, memoryCurrent, _, _, err := l.DomainGetInfo(d)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				continue
 			}
 
 			memoryNew := uint64(float64(memoryUsed) * (1 + float64(adjustPercent)/100))
@@ -343,7 +346,8 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 
 			err = l.DomainSetMemory(d, memoryNew)
 			if err != nil {
-				log.Fatal(err)
+				log.Println(err)
+				continue
 			}
 
 			table.Append([]string{name,
