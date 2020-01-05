@@ -10,10 +10,12 @@ var base_nix = []byte(`
   services.xserver = {
     enable = true;
     desktopManager.xterm.enable = false;
-    displayManager.slim = {
+    displayManager.lightdm = {
       enable = true;
-      defaultUser = "user";
-      autoLogin = true;
+      autoLogin = {
+        enable = true;
+        user = "user";
+      };
     };
     windowManager.xmonad.enable = true;
     windowManager.default = "xmonad";
