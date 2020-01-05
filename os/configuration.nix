@@ -65,7 +65,7 @@ in {
   environment.systemPackages = with pkgs; [
     appvm virtmanager chromium
     # Cache packages required for application VMs
-    xmonad-with-packages spice-vdagent bc qemu_test slim
+    xmonad-with-packages spice-vdagent bc qemu_test lightdm
   ];
 
   services.xserver.enable = true;
