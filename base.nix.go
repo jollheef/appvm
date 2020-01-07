@@ -1,6 +1,12 @@
 package main
 
-var base_nix = []byte(`
+import (
+	"fmt"
+	"log"
+	"os/user"
+)
+
+var base_nix = `
 {pkgs, ...}:
 {
   imports = [
@@ -24,6 +30,7 @@ var base_nix = []byte(`
   services.spice-vdagentd.enable = true;
 
   users.extraUsers.user = {
+    uid = %s;
     isNormalUser = true;
     extraGroups = [ "audio" ];
     createHome = true;
@@ -58,7 +65,7 @@ startup = do
   systemd.services.mount-home-user = {
     description = "Mount /home/user (crutch)";
     serviceConfig = {
-      ExecStart = "/bin/sh -c '/run/current-system/sw/bin/mount -t 9p -o trans=virtio,version=9p2000.L,uid=1000 home /home/user'";
+      ExecStart = "/bin/sh -c '/run/current-system/sw/bin/mount -t 9p -o trans=virtio,version=9p2000.L home /home/user'";
       RemainAfterExit = "yes";
       Type = "oneshot";
       User = "root";
@@ -106,4 +113,12 @@ startup = do
     wantedBy = ["timers.target"];
   };
 }
-`)
+`
+
+func baseNix() []byte {
+	u, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
+	return []byte(fmt.Sprintf(base_nix, u.Uid))
+}

@@ -430,7 +430,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = ioutil.WriteFile(configDir+"/nix/base.nix", base_nix, 0644)
+	err = ioutil.WriteFile(configDir+"/nix/base.nix", baseNix(), 0644)
 	if err != nil {
 		log.Fatal(err)
 	}
