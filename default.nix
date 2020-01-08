@@ -9,16 +9,20 @@
 
 buildGoPackage rec {
   pname = "appvm";
-  version = "0.3";
+  #version = "0.3";
+  version = "master";
 
   buildInputs = [ makeWrapper ];
 
   goPackagePath = "code.dumpstack.io/tools/${pname}";
 
-  src = fetchgit {
-    rev = "refs/tags/v${version}";
-    url = "https://code.dumpstack.io/tools/${pname}.git";
-    sha256 = "1ji4g868xrv6kx6brdrqfv0ca12vjw0mcndffnnwpczh4yv81sd3";
+  # src = fetchgit {
+  #   rev = "refs/tags/v${version}";
+  #   url = "https://code.dumpstack.io/tools/${pname}.git";
+  #   sha256 = "1ji4g868xrv6kx6brdrqfv0ca12vjw0mcndffnnwpczh4yv81sd3";
+  src = builtins.fetchGit {
+    url = "https://code.dumpstack.io/tools/appvm.git";
+    ref = "master";
   };
 
   goDeps = ./deps.nix;
