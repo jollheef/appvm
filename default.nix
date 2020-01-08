@@ -1,11 +1,14 @@
-{ stdenv
-, lib
-, buildGoPackage
-, fetchgit
-, nix
-, virt-viewer
-, makeWrapper
-}:
+# { stdenv
+# , lib
+# , buildGoPackage
+# , fetchgit
+# , nix
+# , virt-viewer
+# , makeWrapper
+# }:
+let
+  pkgs = import <nixpkgs> {};
+in with pkgs;
 
 buildGoPackage rec {
   pname = "appvm";
