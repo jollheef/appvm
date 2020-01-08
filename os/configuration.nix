@@ -32,6 +32,7 @@ in {
 
   users.users.user = {
     isNormalUser = true;
+    initialPassword = "user";   # should be changed right after start
     extraGroups = [ "audio" "libvirtd" ];
   };
 
