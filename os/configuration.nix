@@ -44,6 +44,15 @@ in {
     '';
   };
 
+  systemd.user.services."dot-desktop-fuse" = {
+    serviceConfig = {
+      ExecStart = "${appvm}/bin/dot-desktop-fuse";
+      Restart = "on-failure";
+    };
+    path = [ "/run/wrappers" ];
+    wantedBy = [ "default.target" ];
+  };
+
   systemd.user.services."autoballoon" = {
     serviceConfig.StartLimitBurst = 64;
     script = "${appvm}/bin/appvm autoballoon";
