@@ -8,8 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-
-	"github.com/digitalocean/go-libvirt"
 )
 
 var template = `
@@ -78,7 +76,7 @@ func filterDotfiles(files []os.FileInfo) (notHiddenFiles []os.FileInfo) {
 	return
 }
 
-func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
+func generate(pkg, bin, vmname string, build bool) (err error) {
 	// TODO refactor
 	var name, channel string
 
@@ -190,5 +188,23 @@ func generate(l *libvirt.Libvirt, pkg, bin, vmname string) (err error) {
 
 	fmt.Print(appNixConfig + "\n")
 	log.Println("Configuration file is saved to", appFilename)
+
+	if build {
+		err = os.Chdir(configDir)
+		if err != nil {
+			return
+		}
+
+		if vmname != "" {
+			_, _, _, err = generateVM(vmname, true)
+		} else {
+			_, _, _, err = generateVM(name, true)
+		}
+
+		if err != nil {
+			return
+		}
+	}
+
 	return
 }

@@ -254,7 +254,7 @@ func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
 	if !isAppvmConfigurationExists(appvmPath, name) {
 		log.Println("No configuration exists for app, " +
 			"trying to generate")
-		err := generate(l, name, "", "")
+		err := generate(name, "", "", false)
 		if err != nil {
 			log.Println("Can't auto generate")
 			return
@@ -435,19 +435,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	c, err := net.DialTimeout("unix", "/var/run/libvirt/libvirt-sock", time.Second)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	l := libvirt.New(c)
-	if err := l.Connect(); err != nil {
-		log.Fatal(err)
-	}
-	defer l.Disconnect()
-
-	cleanupStatelessVMs(l)
-
 	kingpin.Command("list", "List applications")
 	autoballonCommand := kingpin.Command("autoballoon", "Automatically adjust/reduce app vm memory")
 	minMemory := autoballonCommand.Flag("min-memory", "Set minimal memory (megabytes)").Default("1024").Uint64()
@@ -468,11 +455,32 @@ func main() {
 	generateName := generateCommand.Arg("name", "Nix package name").Required().String()
 	generateBin := generateCommand.Arg("bin", "Binary").Default("").String()
 	generateVMName := generateCommand.Flag("vm", "Use VM Name").Default("").String()
+	generateBuildVM := generateCommand.Flag("build", "Build VM").Bool()
 
 	searchCommand := kingpin.Command("search", "Search for application")
 	searchName := searchCommand.Arg("name", "Application name").Required().String()
 
 	kingpin.Command("sync", "Synchronize remote repos for applications")
+
+	var l *libvirt.Libvirt
+	if kingpin.Parse() != "generate" {
+		c, err := net.DialTimeout(
+			"unix",
+			"/var/run/libvirt/libvirt-sock",
+			time.Second,
+		)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		l = libvirt.New(c)
+		if err := l.Connect(); err != nil {
+			log.Fatal(err)
+		}
+		defer l.Disconnect()
+
+		cleanupStatelessVMs(l)
+	}
 
 	switch kingpin.Parse() {
 	case "list":
@@ -480,7 +488,8 @@ func main() {
 	case "search":
 		search(*searchName)
 	case "generate":
-		generate(l, *generateName, *generateBin, *generateVMName)
+		generate(*generateName, *generateBin, *generateVMName,
+			*generateBuildVM)
 	case "start":
 		start(l, *startName,
 			!*startQuiet, !*startOffline, *startStateless,
