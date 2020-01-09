@@ -6,10 +6,7 @@ let
     name = "appvm";
     goPackagePath = "code.dumpstack.io/tools/appvm";
     goDeps = ../deps.nix;
-    src = builtins.fetchGit {
-      url = "https://code.dumpstack.io/tools/appvm.git";
-      ref = "master";
-    };
+    src = ../.;
     buildInputs = [ pkgs.makeWrapper ];
     postFixup = ''
       wrapProgram $bin/bin/appvm \
