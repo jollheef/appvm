@@ -256,18 +256,12 @@ func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
 		}
 	}
 
-	// Copy templates
-	err := prepareTemplates(appvmPath)
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	if !isRunning(l, vmName) {
 		if !verbose {
 			go stupidProgressBar()
 		}
 
-		err = generateAppVM(l, name, vmName, appvmPath, sharedDir,
+		err := generateAppVM(l, name, vmName, appvmPath, sharedDir,
 			verbose, online)
 		if err != nil {
 			log.Fatal(err)
@@ -426,6 +420,12 @@ func main() {
 	}
 
 	err = ioutil.WriteFile(configDir+"/nix/base.nix", baseNix(), 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Copy templates
+	err = prepareTemplates(configDir)
 	if err != nil {
 		log.Fatal(err)
 	}
