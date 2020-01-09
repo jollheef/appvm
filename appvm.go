@@ -106,10 +106,10 @@ func streamStdOutErr(command *cmd.Cmd) {
 	}
 }
 
-func generateVM(name string, verbose bool) (realpath, reginfo, qcow2 string, err error) {
+func generateVM(path, name string, verbose bool) (realpath, reginfo, qcow2 string, err error) {
 	command := cmd.NewCmdOptions(cmd.Options{Buffered: false, Streaming: true},
 		"nix-build", "<nixpkgs/nixos>", "-A", "config.system.build.vm",
-		"-I", "nixos-config=nix/"+name+".nix", "-I", ".")
+		"-I", "nixos-config="+path+"/nix/"+name+".nix", "-I", path)
 
 	if verbose {
 		go streamStdOutErr(command)
@@ -170,12 +170,7 @@ func generateAppVM(l *libvirt.Libvirt,
 	nixName, vmName, appvmPath, sharedDir string,
 	verbose, online bool) (err error) {
 
-	err = os.Chdir(appvmPath)
-	if err != nil {
-		return
-	}
-
-	realpath, reginfo, qcow2, err := generateVM(nixName, verbose)
+	realpath, reginfo, qcow2, err := generateVM(appvmPath, nixName, verbose)
 	if err != nil {
 		return
 	}

@@ -190,15 +190,10 @@ func generate(pkg, bin, vmname string, build bool) (err error) {
 	log.Println("Configuration file is saved to", appFilename)
 
 	if build {
-		err = os.Chdir(configDir)
-		if err != nil {
-			return
-		}
-
 		if vmname != "" {
-			_, _, _, err = generateVM(vmname, true)
+			_, _, _, err = generateVM(configDir, vmname, true)
 		} else {
-			_, _, _, err = generateVM(name, true)
+			_, _, _, err = generateVM(configDir, name, true)
 		}
 
 		if err != nil {
