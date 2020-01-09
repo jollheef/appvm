@@ -32,7 +32,11 @@ func (r *ddf) OnAdd(ctx context.Context) {
 			log.Fatal(err)
 		}
 
-		b = bytes.ReplaceAll(b, []byte("Actions="), []byte("Actions=appvm;"))
+		if bytes.Contains(b, []byte("Actions=")) {
+			b = bytes.ReplaceAll(b, []byte("Actions="), []byte("Actions=appvm;"))
+		} else {
+			b = bytes.ReplaceAll(b, []byte("Exec="), []byte("Actions=appvm;\nExec="))
+		}
 
 		raw := string(regexp.MustCompile("Exec=[a-zA-Z0-9]*").Find(b))
 
