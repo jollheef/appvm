@@ -35,6 +35,7 @@ jobs:
   live-iso:
     name: Live ISO
     runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/master'
     steps:
     - uses: actions/checkout@v1
 
