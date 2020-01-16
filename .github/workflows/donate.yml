@@ -1,0 +1,20 @@
+name: donate
+
+on:
+  issues:
+    types: [opened, closed]
+  schedule:
+    - cron: '45 * * * *' # for updating balance
+
+jobs:
+  comment:
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # the scope is current repository only
+          TOOL: "https://github.com/jollheef/donate/archive/master.tar.gz"
+        run: |
+          curl https://nixos.org/nix/install | sh
+          . ~/.nix-profile/etc/profile.d/nix.sh
+          nix-channel --update
+          nix run -f $TOOL -c donate-ci
