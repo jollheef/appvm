@@ -4,14 +4,17 @@ on:
   issues:
     types: [opened, closed]
   schedule:
-    - cron: '45 * * * *' # for updating balance
+    - cron: '35 * * * *' # for updating balance
 
 jobs:
   comment:
     runs-on: ubuntu-latest
     steps:
       - env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # the scope is current repository only
+          # https://github.com/jollheef/donate/blob/master/dashboard/whitelist.go
+          DASHBOARD_ACCESS_TOKEN: ${{ secrets.DONATE_DASHBOARD_ACCESS_TOKEN }}
+          # the scope is current repository only
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TOOL: "https://github.com/jollheef/donate/archive/master.tar.gz"
         run: |
           curl https://nixos.org/nix/install | sh
