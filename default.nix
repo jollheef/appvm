@@ -8,6 +8,9 @@
 # }:
 let
   pkgs = import <nixpkgs> {};
+  virt-manager-without-menu = pkgs.virt-viewer.overrideAttrs(x: {
+    patches = [ ./patches/0001-Remove-menu-bar.patch ];
+  });
 in with pkgs;
 
 buildGoPackage rec {
@@ -32,7 +35,7 @@ buildGoPackage rec {
 
   postFixup = ''
     wrapProgram $bin/bin/appvm \
-      --prefix PATH : "${lib.makeBinPath [ nix virt-viewer ]}"
+      --prefix PATH : "${lib.makeBinPath [ nix virt-manager-without-menu ]}"
   '';
 
   meta = {
