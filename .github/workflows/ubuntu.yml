@@ -31,26 +31,3 @@ jobs:
       run: |
         . ~/.nix-profile/etc/profile.d/nix.sh
         make nix
-
-  live-iso:
-    name: Live ISO
-    runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/master'
-    steps:
-    - uses: actions/checkout@v1
-
-    - name: Install Nix
-      run: |
-        curl https://nixos.org/nix/install | sh
-        . ~/.nix-profile/etc/profile.d/nix.sh
-        nix-channel --update
-
-    - name: Generate Live ISO
-      run: |
-        . ~/.nix-profile/etc/profile.d/nix.sh
-        make -C os live-iso
-
-    - uses: actions/upload-artifact@v1
-      with:
-        name: $Placeholder OS Live ISO
-        path: os/appvm.iso
