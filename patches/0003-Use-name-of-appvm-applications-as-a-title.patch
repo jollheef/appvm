@@ -1,7 +1,7 @@
 From c5b51c0a540af34499f2b2a49cb64599c06ba293 Mon Sep 17 00:00:00 2001
 From: Mikhail Klementev <blame@dumpstack.io>
 Date: Wed, 22 Jan 2020 01:24:57 +0000
-Subject: [PATCH 3/4] Use name of appvm applications as a title
+Subject: [PATCH 3/3] Use name of appvm applications as a title
 
 ---
  src/virt-viewer-window.c | 3 +++

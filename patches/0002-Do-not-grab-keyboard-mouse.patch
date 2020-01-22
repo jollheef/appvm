@@ -1,7 +1,7 @@
 From eac430d01f486e15b55d6fa992e77ded77bb4b1a Mon Sep 17 00:00:00 2001
 From: Mikhail Klementev <blame@dumpstack.io>
 Date: Wed, 22 Jan 2020 00:41:34 +0000
-Subject: [PATCH 2/4] Do not grab keyboard/mouse
+Subject: [PATCH 2/3] Do not grab keyboard/mouse
 
 ---
  src/virt-viewer-display-spice.c | 4 ++--
