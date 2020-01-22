@@ -1,0 +1,26 @@
+From c5b51c0a540af34499f2b2a49cb64599c06ba293 Mon Sep 17 00:00:00 2001
+From: Mikhail Klementev <blame@dumpstack.io>
+Date: Wed, 22 Jan 2020 01:24:57 +0000
+Subject: [PATCH 3/3] Use name of appvm applications as a title
+
+---
+ src/virt-viewer-window.c | 3 +++
+ 1 file changed, 3 insertions(+)
+
+diff --git a/src/virt-viewer-window.c b/src/virt-viewer-window.c
+index 4c08423..cc8a440 100644
+--- a/src/virt-viewer-window.c
++++ b/src/virt-viewer-window.c
+@@ -1362,6 +1362,9 @@ virt_viewer_window_update_title(VirtViewerWindow *self)
+ 
+     if (!ungrab && !priv->subtitle)
+         title = g_strdup(g_get_application_name());
++    else if (g_str_has_prefix(priv->subtitle, "appvm_"))
++        /* Use name of the application as a title */
++        title = g_strdup_printf(_("%s"), &priv->subtitle[strlen("appvm_")]);
+     else
+         /* translators:
+          * This is "<ungrab (or empty)><space (or empty)><subtitle (or empty)> - <appname>"
+-- 
+2.23.1
+
