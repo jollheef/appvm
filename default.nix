@@ -29,10 +29,7 @@ buildGoPackage rec {
   #   rev = "refs/tags/v${version}";
   #   url = "https://code.dumpstack.io/tools/${pname}.git";
   #   sha256 = "1ji4g868xrv6kx6brdrqfv0ca12vjw0mcndffnnwpczh4yv81sd3";
-  src = builtins.fetchGit {
-    url = "https://code.dumpstack.io/tools/appvm.git";
-    ref = "master";
-  };
+  src = ./.;
 
   goDeps = ./deps.nix;
 
