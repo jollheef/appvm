@@ -1,11 +1,3 @@
-# { stdenv
-# , lib
-# , buildGoPackage
-# , fetchgit
-# , nix
-# , virt-viewer
-# , makeWrapper
-# }:
 let
   pkgs = import <nixpkgs> {};
   virt-manager-without-menu = pkgs.virt-viewer.overrideAttrs(x: {
@@ -18,17 +10,12 @@ in with pkgs;
 
 buildGoPackage rec {
   pname = "appvm";
-  #version = "0.3";
   version = "master";
 
   buildInputs = [ makeWrapper ];
 
   goPackagePath = "code.dumpstack.io/tools/${pname}";
 
-  # src = fetchgit {
-  #   rev = "refs/tags/v${version}";
-  #   url = "https://code.dumpstack.io/tools/${pname}.git";
-  #   sha256 = "1ji4g868xrv6kx6brdrqfv0ca12vjw0mcndffnnwpczh4yv81sd3";
   src = ./.;
 
   goDeps = ./deps.nix;
