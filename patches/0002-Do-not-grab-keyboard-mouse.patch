@@ -1,0 +1,27 @@
+From eac430d01f486e15b55d6fa992e77ded77bb4b1a Mon Sep 17 00:00:00 2001
+From: Mikhail Klementev <blame@dumpstack.io>
+Date: Wed, 22 Jan 2020 00:41:34 +0000
+Subject: [PATCH 2/2] Do not grab keyboard/mouse
+
+---
+ src/virt-viewer-display-spice.c | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/virt-viewer-display-spice.c b/src/virt-viewer-display-spice.c
+index 311178b..8e68de2 100644
+--- a/src/virt-viewer-display-spice.c
++++ b/src/virt-viewer-display-spice.c
+@@ -307,8 +307,8 @@ virt_viewer_display_spice_new(VirtViewerSessionSpice *session,
+     gtk_container_add(GTK_CONTAINER(self), GTK_WIDGET(self->priv->display));
+     gtk_widget_show(GTK_WIDGET(self->priv->display));
+     g_object_set(self->priv->display,
+-                 "grab-keyboard", TRUE,
+-                 "grab-mouse", TRUE,
++                 "grab-keyboard", FALSE,
++                 "grab-mouse", FALSE,
+                  "resize-guest", FALSE,
+                  "scaling", TRUE,
+                  NULL);
+-- 
+2.23.1
+

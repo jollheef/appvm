@@ -9,7 +9,10 @@
 let
   pkgs = import <nixpkgs> {};
   virt-manager-without-menu = pkgs.virt-viewer.overrideAttrs(x: {
-    patches = [ ./patches/0001-Remove-menu-bar.patch ];
+    patches = [
+      ./patches/0001-Remove-menu-bar.patch
+      ./patches/0002-Do-not-grab-keyboard-mouse.patch
+    ];
   });
 in with pkgs;
 

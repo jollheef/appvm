@@ -1,7 +1,7 @@
 From c26580442a4ac18f805b1795ec250d6cf5857a49 Mon Sep 17 00:00:00 2001
 From: Mikhail Klementev <blame@dumpstack.io>
 Date: Wed, 22 Jan 2020 00:25:16 +0000
-Subject: [PATCH] Remove menu bar
+Subject: [PATCH 1/2] Remove menu bar
 
 ---
  src/resources/ui/virt-viewer.ui | 2 +-
