@@ -1,0 +1,32 @@
+From 38705319f8c43212da9d2464d50255827d6fcf01 Mon Sep 17 00:00:00 2001
+From: Mikhail Klementev <blame@dumpstack.io>
+Date: Wed, 22 Jan 2020 02:27:26 +0000
+Subject: [PATCH 4/4] Disable subtitle
+
+---
+ src/virt-viewer-app.c | 2 ++
+ 1 file changed, 2 insertions(+)
+
+diff --git a/src/virt-viewer-app.c b/src/virt-viewer-app.c
+index 343b1af..3fabfcb 100644
+--- a/src/virt-viewer-app.c
++++ b/src/virt-viewer-app.c
+@@ -715,6 +715,7 @@ virt_viewer_app_set_window_subtitle(VirtViewerApp *app,
+                                     VirtViewerWindow *window,
+                                     int nth)
+ {
++#if 0
+     gchar *subtitle = NULL;
+     const gchar *title = virt_viewer_app_get_title(app);
+ 
+@@ -740,6 +741,7 @@ virt_viewer_app_set_window_subtitle(VirtViewerApp *app,
+ 
+     g_object_set(window, "subtitle", subtitle, NULL);
+     g_free(subtitle);
++#endif
+ }
+ 
+ static void
+-- 
+2.23.1
+
