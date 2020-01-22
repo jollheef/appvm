@@ -1,18 +1,7 @@
 { config, pkgs, lib, ... }:
 
 let
-  appvm = (pkgs.buildGoPackage {
-    # TODO ../default.nix
-    name = "appvm";
-    goPackagePath = "code.dumpstack.io/tools/appvm";
-    goDeps = ../deps.nix;
-    src = ../.;
-    buildInputs = [ pkgs.makeWrapper ];
-    postFixup = ''
-      wrapProgram $bin/bin/appvm \
-        --prefix PATH : "${lib.makeBinPath [ pkgs.nix pkgs.virt-viewer ]}"
-    '';
-  });
+  appvm = (import ../default.nix);
 in {
   imports = [
     <nixpkgs/nixos/modules/installer/cd-dvd/channel.nix>
