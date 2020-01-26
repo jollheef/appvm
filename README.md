@@ -15,7 +15,7 @@ Uses one **read-only** /nix directory for all appvms. So creating a new appvm (b
 ### Requirements
 
     $ sudo apt install virt-manager curl git
-    $ sudo usermod -a -G libvirt $USER
+    $ sudo usermod -a -G libvirt $USER # group can also be "libvirtd"
     $ newgrp libvirt
     $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
     $ sudo systemctl restart libvirtd
