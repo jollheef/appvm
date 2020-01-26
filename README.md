@@ -24,6 +24,7 @@ Uses one **read-only** /nix directory for all appvms. So creating a new appvm (b
 
     $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
     $ curl https://nixos.org/nix/install | sh
+    $ nix-channel --add https://nixos.org/channels/nixos-19.09 nixpkgs
     $ . ~/.nix-profile/etc/profile.d/nix.sh
 
 ### Install appvm
