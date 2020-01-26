@@ -10,53 +10,38 @@ Uses one **read-only** /nix directory for all appvms. So creating a new appvm (b
 
 ![appvm screenshot](screenshots/2018-07-05.png)
 
-## Dependencies
+## Installation
 
-    $ sudo apt install golang virt-manager curl git
+### Requirements
+
+    $ sudo apt install virt-manager curl git
     $ sudo usermod -a -G libvirt $USER
+    $ newgrp libvirt
+    $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
+    $ sudo systemctl restart libvirtd
 
-    $ echo 'export GOPATH=$HOME/go' >> ~/.bash_profile
-    $ echo 'export PATH=$PATH:$GOPATH/bin' >> ~/.bash_profile
-    $ echo 'source ~/.bash_profile' >> ~/.bashrc
-    $ source ~/.bash_profile
-
-You need to **relogin** if you install virt-manager (libvirt) first time.
-
-## Install Nix package manager
+### Install Nix package manager
 
     $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
     $ curl https://nixos.org/nix/install | sh
     $ . ~/.nix-profile/etc/profile.d/nix.sh
 
-## Libvirt from user (required if you need access to shared files)
+### Install appvm
 
-    $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
-    $ sudo systemctl restart libvirtd
+    $ nix-env -if https://code.dumpstack.io/tools/appvm/archive/master.tar.gz
 
-## Install appvm tool
+## Usage
 
-    $ go get code.dumpstack.io/tools/appvm
-
-## Update appvm tool
-
-    $ go get -u code.dumpstack.io/tools/appvm
-
-## Search for applications
+### Search for applications
 
     $ appvm search chromium
 
-## Generate new application
-
-	$ nix-channel --list
-	nix https://nixos.org/channels/nixos-unstable
-    $ appvm generate nix.firefox
-
-## Run application
+### Run application
 
     $ appvm start chromium
     $ # ... long wait for first time, because we need to collect a lot of packages
 
-## Synchronize remote repos for applications
+### Synchronize remote repos for applications
 
     $ appvm sync
 
@@ -64,17 +49,17 @@ You can customize local settings in **~/.config/appvm/nix/local.nix**.
 
 Default hotkey to release cursor: ctrl+alt.
 
-## Shared directory
+### Shared directory
 
     $ ls appvm/chromium
     foo.tar.gz
     bar.tar.gz
 
-## Close VM
+### Close VM
 
     $ appvm stop chromium
 
-## Automatic ballooning
+### Automatic ballooning
 
 Add this command:
 
