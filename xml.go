@@ -37,7 +37,7 @@ var xmlTmpl = `
   <currentMemory unit='GiB'>1</currentMemory>
   <vcpu>4</vcpu>
   <os>
-    <type arch='x86_64' machine='pc-i440fx-2.12'>hvm</type>
+    <type arch='x86_64'>hvm</type>
     <kernel>%s/kernel</kernel>
     <initrd>%s/initrd</initrd>
     <cmdline>loglevel=4 init=%s/init %s</cmdline>
