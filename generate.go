@@ -18,17 +18,17 @@ let
     ARGS_FILE=/home/user/.args
     ARGS=$(cat $ARGS_FILE)
     rm $ARGS_FILE
-
     ${application} $ARGS
     systemctl poweroff
   '';
+
+  cmd = "${appRunner}/bin/app";
+  displayProtocol = "%s";
 in {
   imports = [
     <nixpkgs/nixos/modules/virtualisation/qemu-vm.nix>
-    <nix/base.nix>
+    (import <nix/base.nix> { inherit cmd displayProtocol; })
   ];
-
-  services.xserver.displayManager.sessionCommands = "${appRunner}/bin/app &";
 }
 `
 
@@ -76,7 +76,7 @@ func filterDotfiles(files []os.FileInfo) (notHiddenFiles []os.FileInfo) {
 	return
 }
 
-func generate(pkg, bin, vmname string, build bool) (err error) {
+func generate(pkg, bin, vmname string, build bool, protocol string) (err error) {
 	// TODO refactor
 	var name, channel string
 
@@ -178,7 +178,7 @@ func generate(pkg, bin, vmname string, build bool) (err error) {
 		appFilename = configDir + "/nix/" + name + ".nix"
 	}
 
-	appNixConfig := fmt.Sprintf(template, name, bin)
+	appNixConfig := fmt.Sprintf(template, name, bin, protocol)
 
 	err = ioutil.WriteFile(appFilename, []byte(appNixConfig), 0600)
 	if err != nil {
