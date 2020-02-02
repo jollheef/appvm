@@ -1,0 +1,44 @@
+From 8e95408365b57c64a738381d132ecdc844013afb Mon Sep 17 00:00:00 2001
+From: Mikhail Klementev <blame@dumpstack.io>
+Date: Wed, 22 Jan 2020 02:27:26 +0000
+Subject: [PATCH 4/4] Use title (application name) as subtitle
+
+---
+ src/virt-viewer-app.c | 21 ++-------------------
+ 1 file changed, 2 insertions(+), 19 deletions(-)
+
+diff --git a/src/virt-viewer-app.c b/src/virt-viewer-app.c
+index 343b1af..8267f82 100644
+--- a/src/virt-viewer-app.c
++++ b/src/virt-viewer-app.c
+@@ -718,25 +718,8 @@ virt_viewer_app_set_window_subtitle(VirtViewerApp *app,
+     gchar *subtitle = NULL;
+     const gchar *title = virt_viewer_app_get_title(app);
+ 
+-    if (title != NULL) {
+-        VirtViewerDisplay *display = virt_viewer_window_get_display(window);
+-        gchar *d = strstr(title, "%d");
+-        gchar *desc = NULL;
+-
+-        if (display && VIRT_VIEWER_IS_DISPLAY_VTE(display)) {
+-            g_object_get(display, "name", &desc, NULL);
+-        } else  {
+-            desc = g_strdup_printf("%d", nth + 1);
+-        }
+-
+-        if (d != NULL) {
+-            *d = '\0';
+-            subtitle = g_strdup_printf("%s%s%s", title, desc, d + 2);
+-            *d = '%';
+-        } else
+-            subtitle = g_strdup_printf("%s (%s)", title, desc);
+-        g_free(desc);
+-    }
++    if (title != NULL)
++        subtitle = g_strdup_printf("%s", title);
+ 
+     g_object_set(window, "subtitle", subtitle, NULL);
+     g_free(subtitle);
+-- 
+2.23.1
+
