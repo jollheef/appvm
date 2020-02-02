@@ -12,24 +12,7 @@ Uses one **read-only** /nix directory for all appvms. So creating a new appvm (b
 
 ## Installation
 
-### Requirements
-
-    $ sudo apt install virt-manager curl git
-    $ sudo usermod -a -G libvirt $USER # group can also be "libvirtd"
-    $ newgrp libvirt
-    $ echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
-    $ sudo systemctl restart libvirtd
-
-### Install Nix package manager
-
-    $ sudo mkdir -m 0755 /nix && sudo chown $USER /nix
-    $ curl https://nixos.org/nix/install | sh
-    $ nix-channel --add https://nixos.org/channels/nixos-19.09 nixpkgs
-    $ . ~/.nix-profile/etc/profile.d/nix.sh
-
-### Install appvm
-
-    $ nix-env -if https://code.dumpstack.io/tools/appvm/archive/master.tar.gz
+See [related documentation](https://appvm.readthedocs.io/en/latest/installation.html).
 
 ## Usage
 
