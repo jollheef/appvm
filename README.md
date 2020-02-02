@@ -8,7 +8,7 @@ Simple application VMs (hypervisor-based sandbox) based on Nix package manager.
 
 Uses one **read-only** /nix directory for all appvms. So creating a new appvm (but not first) is just about one minute.
 
-![appvm screenshot](screenshots/2018-07-05.png)
+![appvm screenshot](https://gateway.ipfs.io/ipfs/QmetVp2LRwcy3baxuAjDgBPwv5ych5kRfXeULoNpQAFsaP)
 
 ## Installation
 
