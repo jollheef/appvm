@@ -151,7 +151,7 @@ func generateVM(path, name string, verbose bool) (realpath, reginfo, qcow2 strin
 	qcow2 = os.Getenv("HOME") + "/appvm/.fake.qcow2"
 	if _, err = os.Stat(qcow2); os.IsNotExist(err) {
 		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "512M")
-		err = os.Chmod(qcow2, 0400) // qemu run with -snapshot, we only need it for create /dev/vda
+		err = os.Chmod(qcow2, 0700) // qemu run with -snapshot, we only need it for create /dev/vda
 		if err != nil {
 			return
 		}
@@ -205,7 +205,7 @@ func isAppvmConfigurationExists(appvmPath, name string) bool {
 }
 
 func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
-	args, open string) {
+	args, open string, protocol string) {
 
 	appvmPath := configDir
 
@@ -249,7 +249,7 @@ func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
 	if !isAppvmConfigurationExists(appvmPath, name) {
 		log.Println("No configuration exists for app, " +
 			"trying to generate")
-		err := generate(name, "", "", false)
+		err := generate(name, "", "", false, protocol)
 		if err != nil {
 			log.Println("Can't auto generate")
 			return
@@ -268,8 +268,16 @@ func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
 		}
 	}
 
-	cmd := exec.Command("virt-viewer", "-c", "qemu:///system", vmName)
-	cmd.Start()
+	switch protocol {
+	case "virt-viewer":
+	  cmd := exec.Command("virt-viewer", "-c", "qemu:///system", vmName)
+	  cmd.Start()
+	case "waypipe":
+	  waypipe := exec.Command("waypipe", "client")
+	  waypipe.Start()
+	  socat := exec.Command("socat", "TCP-LISTEN:2222,fork,reuseaddr", "UNIX-CONNECT:/tmp/waypipe-client.sock")
+	  socat.Start()
+	}
 }
 
 func stop(l *libvirt.Libvirt, name string) {
@@ -446,6 +454,7 @@ func main() {
 	startOpen := startCommand.Flag("open", "Pass file to application").String()
 	startOffline := startCommand.Flag("offline", "Disconnect").Bool()
 	startStateless := startCommand.Flag("stateless", "Do not use default state directory").Bool()
+	startDisplayProtocol := startCommand.Flag("display-protocol", "How application connects to host").Envar("DISPLAY_PROTOCOL").Default("virt-viewer").String()
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -455,6 +464,7 @@ func main() {
 	generateBin := generateCommand.Arg("bin", "Binary").Default("").String()
 	generateVMName := generateCommand.Flag("vm", "Use VM Name").Default("").String()
 	generateBuildVM := generateCommand.Flag("build", "Build VM").Bool()
+	generateDisplayProtocol := generateCommand.Flag("display-protocol", "How application connects to host").Envar("DISPLAY_PROTOCOL").Default("virt-viewer").String()
 
 	searchCommand := kingpin.Command("search", "Search for application")
 	searchName := searchCommand.Arg("name", "Application name").Required().String()
@@ -488,11 +498,11 @@ func main() {
 		search(*searchName)
 	case "generate":
 		generate(*generateName, *generateBin, *generateVMName,
-			*generateBuildVM)
+			*generateBuildVM, *generateDisplayProtocol)
 	case "start":
 		start(l, *startName,
 			!*startQuiet, !*startOffline, *startStateless,
-			*startArgs, *startOpen)
+			*startArgs, *startOpen, *startDisplayProtocol)
 	case "stop":
 		stop(l, *stopName)
 	case "drop":

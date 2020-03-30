@@ -24,7 +24,7 @@ buildGoPackage rec {
 
   postFixup = ''
     wrapProgram $bin/bin/appvm \
-      --prefix PATH : "${lib.makeBinPath [ nix virt-manager-without-menu ]}"
+      --prefix PATH : "${lib.makeBinPath [ nix virt-manager-without-menu socat waypipe ]}"
   '';
 
   meta = {
