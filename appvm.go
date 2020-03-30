@@ -310,6 +310,10 @@ func autoBalloon(l *libvirt.Libvirt, memoryMin, adjustPercent uint64) {
 				log.Println(err)
 				continue
 			}
+			if len(memoryUsedRaw) == 0 {
+				log.Println("Empty .memory_used file for domain", name)
+				continue
+			}
 			memoryUsedMiB, err := strconv.Atoi(string(memoryUsedRaw[0 : len(memoryUsedRaw)-1]))
 			if err != nil {
 				log.Println(err)
