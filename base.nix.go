@@ -24,7 +24,6 @@ var base_nix = `
       };
     };
     windowManager.xmonad.enable = true;
-    windowManager.default = "xmonad";
   };
 
   services.spice-vdagentd.enable = true;
