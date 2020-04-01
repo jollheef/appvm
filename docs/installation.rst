@@ -34,7 +34,7 @@ Requirements::
 
 Use latest stable nixpkgs channel::
 
-  nix-channel --add https://nixos.org/channels/nixos-19.09 nixpkgs
+  nix-channel --add https://nixos.org/channels/nixos-20.03 nixpkgs
   nix-channel --update
 
 Install appvm::
