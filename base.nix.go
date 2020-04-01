@@ -16,6 +16,7 @@ var base_nix = `
   services.xserver = {
     enable = true;
     desktopManager.xterm.enable = false;
+    displayManager.defaultSession = "none+xmonad";
     displayManager.lightdm = {
       enable = true;
       autoLogin = {
@@ -24,7 +25,6 @@ var base_nix = `
       };
     };
     windowManager.xmonad.enable = true;
-    windowManager.default = "xmonad";
   };
 
   services.spice-vdagentd.enable = true;
