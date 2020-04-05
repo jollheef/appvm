@@ -5,8 +5,14 @@ import "fmt"
 // You may think that you want to rewrite to proper golang structures.
 // Believe me, you shouldn't.
 
-func generateXML(vmName string, online bool,
+func generateXML(vmName string, online, gui bool,
 	vmNixPath, reginfo, img, sharedDir string) string {
+
+	devices := ""
+
+	if gui {
+		devices = guiDevices
+	}
 
 	qemuParams := `
           <qemu:commandline>
@@ -27,8 +33,24 @@ func generateXML(vmName string, online bool,
 	}
 
 	return fmt.Sprintf(xmlTmpl, vmName, vmNixPath, vmNixPath, vmNixPath,
-		reginfo, img, sharedDir, sharedDir, sharedDir, qemuParams)
+		reginfo, img, sharedDir, sharedDir, sharedDir, devices, qemuParams)
 }
+
+var guiDevices = `
+    <!-- Graphical console -->
+    <graphics type='spice' autoport='yes'>
+      <listen type='address'/>
+      <image compression='off'/>
+    </graphics>
+    <!-- Guest additionals support -->
+    <channel type='spicevmc'>
+      <target type='virtio' name='com.redhat.spice.0'/>
+    </channel>
+    <video>
+      <model type='qxl' ram='524288' vram='524288' vgamem='262144' heads='1' primary='yes'/>
+      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
+    </video>
+`
 
 var xmlTmpl = `
 <domain type='kvm' xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
@@ -50,25 +72,12 @@ var xmlTmpl = `
   <on_reboot>restart</on_reboot>
   <on_crash>destroy</on_crash>
   <devices>
-    <!-- Graphical console -->
-    <graphics type='spice' autoport='yes'>
-      <listen type='address'/>
-      <image compression='off'/>
-    </graphics>
-    <!-- Guest additionals support -->
-    <channel type='spicevmc'>
-      <target type='virtio' name='com.redhat.spice.0'/>
-    </channel>
     <!-- Fake (because -snapshot) writeback image -->
     <disk type='file' device='disk'>
       <driver name='qemu' type='qcow2' cache='writeback' error_policy='report'/>
       <source file='%s'/>
       <target dev='vda' bus='virtio'/>
     </disk>
-    <video>
-      <model type='qxl' ram='524288' vram='524288' vgamem='262144' heads='1' primary='yes'/>
-      <address type='pci' domain='0x0000' bus='0x00' slot='0x02' function='0x0'/>
-    </video>
     <!-- filesystems -->
     <filesystem type='mount' accessmode='passthrough'>
       <source dir='/nix/store'/>
@@ -87,6 +96,7 @@ var xmlTmpl = `
       <source dir='%s'/>
       <target dir='home'/>
     </filesystem>
+    %s
   </devices>
   %s
 </domain>

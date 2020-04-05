@@ -173,14 +173,14 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 
 func generateAppVM(l *libvirt.Libvirt,
 	nixName, vmName, appvmPath, sharedDir string,
-	verbose, online bool) (err error) {
+	verbose, online, gui bool) (err error) {
 
 	realpath, reginfo, qcow2, err := generateVM(appvmPath, nixName, verbose)
 	if err != nil {
 		return
 	}
 
-	xml := generateXML(vmName, online, realpath, reginfo, qcow2, sharedDir)
+	xml := generateXML(vmName, online, gui, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
 	return
 }
@@ -209,7 +209,7 @@ func isAppvmConfigurationExists(appvmPath, name string) bool {
 	return fileExists(appvmPath + "/nix/" + name + ".nix")
 }
 
-func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
+func start(l *libvirt.Libvirt, name string, verbose, online, gui, stateless bool,
 	args, open string) {
 
 	appvmPath := configDir
@@ -267,14 +267,16 @@ func start(l *libvirt.Libvirt, name string, verbose, online, stateless bool,
 		}
 
 		err := generateAppVM(l, name, vmName, appvmPath, sharedDir,
-			verbose, online)
+			verbose, online, gui)
 		if err != nil {
 			log.Fatal(err)
 		}
 	}
 
-	cmd := exec.Command("virt-viewer", "-c", "qemu:///system", vmName)
-	cmd.Start()
+	if gui {
+		cmd := exec.Command("virt-viewer", "-c", "qemu:///system", vmName)
+		cmd.Start()
+	}
 }
 
 func stop(l *libvirt.Libvirt, name string) {
@@ -450,6 +452,7 @@ func main() {
 	startArgs := startCommand.Flag("args", "Command line arguments").String()
 	startOpen := startCommand.Flag("open", "Pass file to application").String()
 	startOffline := startCommand.Flag("offline", "Disconnect").Bool()
+	startCli := startCommand.Flag("cli", "Disable graphics mode, enable serial").Bool()
 	startStateless := startCommand.Flag("stateless", "Do not use default state directory").Bool()
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
@@ -496,7 +499,7 @@ func main() {
 			*generateBuildVM)
 	case "start":
 		start(l, *startName,
-			!*startQuiet, !*startOffline, *startStateless,
+			!*startQuiet, !*startOffline, !*startCli, *startStateless,
 			*startArgs, *startOpen)
 	case "stop":
 		stop(l, *stopName)
