@@ -133,8 +133,13 @@ func generateVM(path, name string, verbose bool) (realpath, reginfo, qcow2 strin
 		return
 	}
 
-	bytes, err := ioutil.ReadFile("result/bin/run-nixos-vm")
-	if err != nil {
+	matches, err := filepath.Glob("result/bin/run-*-vm")
+	if err != nil || len(matches) != 1 {
+		return
+	}
+
+	bytes, err := ioutil.ReadFile(matches[0])
+	if err != nil || len(matches) != 1 {
 		return
 	}
 
