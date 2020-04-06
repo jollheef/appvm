@@ -5,7 +5,7 @@ import "fmt"
 // You may think that you want to rewrite to proper golang structures.
 // Believe me, you shouldn't.
 
-func generateXML(vmName string, online, gui bool,
+func generateXML(vmName string, network networkModel, gui bool,
 	vmNixPath, reginfo, img, sharedDir string) string {
 
 	devices := ""
@@ -14,27 +14,39 @@ func generateXML(vmName string, online, gui bool,
 		devices = guiDevices
 	}
 
-	qemuParams := `
-          <qemu:commandline>
-            <qemu:arg value='-device'/>
-            <qemu:arg value='e1000,netdev=net0'/>
-            <qemu:arg value='-netdev'/>
-            <qemu:arg value='user,id=net0'/>
-            <qemu:arg value='-snapshot'/>
-          </qemu:commandline>
-        `
+	qemuParams := qemuParamsDefault
 
-	if !online {
-		qemuParams = `
-                  <qemu:commandline>
-                    <qemu:arg value='-snapshot'/>
-                  </qemu:commandline>
-                `
+	if network == networkQemu {
+		qemuParams = qemuParamsWithNetwork
+	} else if network == networkLibvirt {
+		devices += netDevices
 	}
 
 	return fmt.Sprintf(xmlTmpl, vmName, vmNixPath, vmNixPath, vmNixPath,
 		reginfo, img, sharedDir, sharedDir, sharedDir, devices, qemuParams)
 }
+
+var qemuParamsDefault = `
+  <qemu:commandline>
+    <qemu:arg value='-snapshot'/>
+  </qemu:commandline>
+`
+
+var qemuParamsWithNetwork = `
+  <qemu:commandline>
+    <qemu:arg value='-device'/>
+    <qemu:arg value='e1000,netdev=net0'/>
+    <qemu:arg value='-netdev'/>
+    <qemu:arg value='user,id=net0'/>
+    <qemu:arg value='-snapshot'/>
+  </qemu:commandline>
+`
+
+var netDevices = `
+    <interface type='network'>
+      <source network='default'/>
+    </interface>
+`
 
 var guiDevices = `
     <!-- Graphical console -->

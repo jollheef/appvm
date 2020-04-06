@@ -31,6 +31,15 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
+
+type networkModel int
+
+const (
+    networkOffline networkModel = iota
+    networkQemu networkModel = iota
+    networkLibvirt networkModel = iota
+)
+
 func list(l *libvirt.Libvirt) {
 	domains, err := l.Domains()
 	if err != nil {
@@ -173,14 +182,14 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 
 func generateAppVM(l *libvirt.Libvirt,
 	nixName, vmName, appvmPath, sharedDir string,
-	verbose, online, gui bool) (err error) {
+	verbose bool, network networkModel, gui bool) (err error) {
 
 	realpath, reginfo, qcow2, err := generateVM(appvmPath, nixName, verbose)
 	if err != nil {
 		return
 	}
 
-	xml := generateXML(vmName, online, gui, realpath, reginfo, qcow2, sharedDir)
+	xml := generateXML(vmName, network, gui, realpath, reginfo, qcow2, sharedDir)
 	_, err = l.DomainCreateXML(xml, libvirt.DomainStartValidate)
 	return
 }
@@ -209,8 +218,8 @@ func isAppvmConfigurationExists(appvmPath, name string) bool {
 	return fileExists(appvmPath + "/nix/" + name + ".nix")
 }
 
-func start(l *libvirt.Libvirt, name string, verbose, online, gui, stateless bool,
-	args, open string) {
+func start(l *libvirt.Libvirt, name string, verbose bool, network networkModel,
+	gui, stateless bool, args, open string) {
 
 	appvmPath := configDir
 
@@ -267,7 +276,7 @@ func start(l *libvirt.Libvirt, name string, verbose, online, gui, stateless bool
 		}
 
 		err := generateAppVM(l, name, vmName, appvmPath, sharedDir,
-			verbose, online, gui)
+			verbose, network, gui)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -415,6 +424,22 @@ func cleanupStatelessVMs(l *libvirt.Libvirt) {
 	}
 }
 
+func parseNetworkModel(flagOffline bool, flagNetworking string) networkModel {
+	if flagNetworking != "" && flagOffline {
+		log.Fatal("Can't use both --network and --offline switches")
+	}
+	if flagOffline || flagNetworking == "offline" {
+		return networkOffline
+	}
+	if flagNetworking == "libvirt" {
+		return networkLibvirt
+	}
+	if flagNetworking == "qemu" {
+		return networkQemu
+	}
+	return networkQemu  // qemu is the default network model
+}
+
 var configDir = os.Getenv("HOME") + "/.config/appvm/"
 var appvmHomesDir = os.Getenv("HOME") + "/appvm/"
 
@@ -454,6 +479,7 @@ func main() {
 	startOffline := startCommand.Flag("offline", "Disconnect").Bool()
 	startCli := startCommand.Flag("cli", "Disable graphics mode, enable serial").Bool()
 	startStateless := startCommand.Flag("stateless", "Do not use default state directory").Bool()
+	startNetwork := startCommand.Flag("network", "Used networking model").Enum("offline", "qemu", "libvirt")
 
 	stopName := kingpin.Command("stop", "Stop application").Arg("name", "Application name").Required().String()
 	dropName := kingpin.Command("drop", "Remove application data").Arg("name", "Application name").Required().String()
@@ -498,8 +524,9 @@ func main() {
 		generate(*generateName, *generateBin, *generateVMName,
 			*generateBuildVM)
 	case "start":
+		networkModel := parseNetworkModel(*startOffline, *startNetwork)
 		start(l, *startName,
-			!*startQuiet, !*startOffline, !*startCli, *startStateless,
+			!*startQuiet, networkModel, !*startCli, *startStateless,
 			*startArgs, *startOpen)
 	case "stop":
 		stop(l, *stopName)
