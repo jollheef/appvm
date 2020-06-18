@@ -10,7 +10,7 @@ let
   });
 in with pkgs;
 
-buildGoPackage rec {
+buildGoModule rec {
   pname = "appvm";
   version = "master";
 
@@ -20,10 +20,11 @@ buildGoPackage rec {
 
   src = ./.;
 
-  goDeps = ./deps.nix;
+  vendorSha256 = "1aimli23jdqv8rifsn22qfbj2c0nc0s5czsd8qprhnr4hcsbdnkf";
+  modSha256 = "${vendorSha256}"; # backward compatibility
 
   postFixup = ''
-    wrapProgram $bin/bin/appvm \
+    wrapProgram $out/bin/appvm \
       --prefix PATH : "${lib.makeBinPath [ nix virt-manager-without-menu ]}"
   '';
 
