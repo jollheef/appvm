@@ -21,7 +21,7 @@ shell::
 
   nix run -f https://code.dumpstack.io/tools/appvm/archive/master.tar.gz -c appvm
 
-Ubuntu 19.10
+Ubuntu 20.04
 ------
 
 Requirements::
@@ -29,7 +29,7 @@ Requirements::
   sudo apt install virt-manager curl git
   echo user = "\"$USER\"" | sudo tee -a /etc/libvirt/qemu.conf
   echo '/var/tmp/** rwlk,' | sudo tee -a /etc/apparmor.d/local/abstractions/libvirt-qemu
-  curl https://nixos.org/nix/install | sh
+  curl -L https://nixos.org/nix/install | sh
   systemctl reboot
 
 Use latest stable nixpkgs channel::
