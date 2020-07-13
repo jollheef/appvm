@@ -34,6 +34,7 @@ in with lib; {
     };
 
     users.users."${cfg.user}".packages = [ appvm ];
+    users.users."${cfg.user}".extraGroups = [ "libvirtd" ];
 
   };
 
