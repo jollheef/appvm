@@ -30,6 +30,7 @@ in with lib; {
         namespaces = []
         user = "${cfg.user}"
         group = "users"
+        remember_owner = 0
       '';
     };
 
