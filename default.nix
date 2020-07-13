@@ -1,5 +1,5 @@
+{ pkgs ? import <nixpkgs> {}, ... }:
 let
-  pkgs = import <nixpkgs> {};
   virt-manager-without-menu = pkgs.virt-viewer.overrideAttrs(x: {
     patches = [
       ./patches/0001-Remove-menu-bar.patch
