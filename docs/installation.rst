@@ -4,22 +4,20 @@ Installation
 NixOS
 -----
 
+First, clone this repo. Then do this:
+
 /etc/nixos/configuration.nix::
 
-  virtualisation.libvirtd = {
+  imports = [
+    /path/to/repo/nixos
+  ];
+
+  virtualizatiom.appvm = {
     enable = true;
-    qemuVerbatimConfig = ''
-      namespaces = []
-      user = "${username}"
-      group = "users"
-    '';
+    user = "${username}";
   };
 
-  users.users."${username}".extraGroups = [ ... "libvirtd" ];
-
-shell::
-
-  nix run -f https://code.dumpstack.io/tools/appvm/archive/master.tar.gz -c appvm
+This is a temporary solution until appvm is upstreamed to nixpkgs or Nix flakes are released.
 
 Ubuntu 20.04
 ------
