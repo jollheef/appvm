@@ -12,7 +12,7 @@ First, clone this repo. Then do this:
     /path/to/repo/nixos
   ];
 
-  virtualizatiom.appvm = {
+  virtualisation.appvm = {
     enable = true;
     user = "${username}";
   };
