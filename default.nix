@@ -16,8 +16,6 @@ buildGoModule rec {
 
   buildInputs = [ makeWrapper ];
 
-  goPackagePath = "code.dumpstack.io/tools/${pname}";
-
   src = ./.;
 
   vendorSha256 = "1aimli23jdqv8rifsn22qfbj2c0nc0s5czsd8qprhnr4hcsbdnkf";
