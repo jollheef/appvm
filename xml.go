@@ -93,7 +93,7 @@ var xmlTmpl = `
     <!-- filesystems -->
     <filesystem type='mount' accessmode='passthrough'>
       <source dir='/nix/store'/>
-      <target dir='store'/>
+      <target dir='nix-store'/>
       <readonly/>
     </filesystem>
     <filesystem type='mount' accessmode='mapped'>
