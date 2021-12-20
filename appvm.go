@@ -161,7 +161,7 @@ func generateVM(path, name string, verbose bool) (realpath, reginfo, qcow2 strin
 
 	syscall.Unlink("result")
 
-	qcow2 = os.Getenv("HOME") + "/appvm/.fake.qcow2"
+	qcow2 = os.Getenv("HOME") + "/appvm/." + name + ".fake.qcow2"
 	if _, e := os.Stat(qcow2); os.IsNotExist(e) {
 		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "40M")
 	}
@@ -177,7 +177,7 @@ func isRunning(l *libvirt.Libvirt, name string) bool {
 
 func generateAppVM(l *libvirt.Libvirt,
 	nixName, vmName, appvmPath, sharedDir string,
-	verbose bool, network networkModel, gui bool) (err error) {
+	verbose bool, network networkModel, gui bool) (qcow2 string, err error) {
 
 	realpath, reginfo, qcow2, err := generateVM(appvmPath, nixName, verbose)
 	if err != nil {
@@ -270,8 +270,9 @@ func start(l *libvirt.Libvirt, name string, verbose bool, network networkModel,
 			go stupidProgressBar()
 		}
 
-		err := generateAppVM(l, name, vmName, appvmPath, sharedDir,
+		qcow2, err := generateAppVM(l, name, vmName, appvmPath, sharedDir,
 			verbose, network, gui)
+		defer os.Remove(qcow2)
 		if err != nil {
 			log.Fatal(err)
 		}
