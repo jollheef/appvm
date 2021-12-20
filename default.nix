@@ -18,8 +18,7 @@ buildGoModule rec {
 
   src = ./.;
 
-  vendorSha256 = "1aimli23jdqv8rifsn22qfbj2c0nc0s5czsd8qprhnr4hcsbdnkf";
-  modSha256 = "${vendorSha256}"; # backward compatibility
+  vendorSha256 = "sha256-8eU+Mf5dxL/bAMMShXvj8I1Kdd4ysBTWvgYIXwLStPI=";
 
   postFixup = ''
     wrapProgram $out/bin/appvm \
