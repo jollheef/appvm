@@ -31,13 +31,12 @@ import (
 	kingpin "gopkg.in/alecthomas/kingpin.v2"
 )
 
-
 type networkModel int
 
 const (
-    networkOffline networkModel = iota
-    networkQemu networkModel = iota
-    networkLibvirt networkModel = iota
+	networkOffline networkModel = iota
+	networkQemu    networkModel = iota
+	networkLibvirt networkModel = iota
 )
 
 func list(l *libvirt.Libvirt) {
@@ -433,7 +432,7 @@ func parseNetworkModel(flagOffline bool, flagNetworking string) networkModel {
 	if flagNetworking == "qemu" {
 		return networkQemu
 	}
-	return networkQemu  // qemu is the default network model
+	return networkQemu // qemu is the default network model
 }
 
 var configDir = os.Getenv("HOME") + "/.config/appvm/"
