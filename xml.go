@@ -35,7 +35,7 @@ var qemuParamsDefault = `
 var qemuParamsWithNetwork = `
   <qemu:commandline>
     <qemu:arg value='-device'/>
-    <qemu:arg value='e1000,netdev=net0'/>
+    <qemu:arg value='e1000,netdev=net0,bus=pci.0,addr=0x10'/>
     <qemu:arg value='-netdev'/>
     <qemu:arg value='user,id=net0'/>
     <qemu:arg value='-snapshot'/>
