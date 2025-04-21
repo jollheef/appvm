@@ -18,7 +18,7 @@ buildGoModule rec {
 
   src = ./.;
 
-  vendorSha256 = "sha256-8eU+Mf5dxL/bAMMShXvj8I1Kdd4ysBTWvgYIXwLStPI=";
+  vendorHash = "sha256-8eU+Mf5dxL/bAMMShXvj8I1Kdd4ysBTWvgYIXwLStPI=";
 
   postFixup = ''
     wrapProgram $out/bin/appvm \
