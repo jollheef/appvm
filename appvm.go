@@ -161,9 +161,13 @@ func generateVM(path, name string, verbose bool) (realpath, reginfo, qcow2 strin
 
 	syscall.Unlink("result")
 
+	tmpraw := os.Getenv("HOME") + "/appvm/." + name + ".tmp.raw"
 	qcow2 = os.Getenv("HOME") + "/appvm/." + name + ".fake.qcow2"
 	if _, e := os.Stat(qcow2); os.IsNotExist(e) {
-		system.System("qemu-img", "create", "-f", "qcow2", qcow2, "40M")
+		system.System("qemu-img", "create", "-f", "raw", tmpraw, "40M")
+		system.System("mkfs.ext4", "-L", "nixos", tmpraw)
+		system.System("qemu-img", "convert", "-f", "raw", "-O", "qcow2", tmpraw, qcow2)
+		system.System("rm", tmpraw)
 	}
 
 	return
