@@ -4,20 +4,10 @@ Installation
 NixOS
 -----
 
-First, clone this repo. Then do this:
-
-/etc/nixos/configuration.nix::
-
-  imports = [
-    /path/to/repo/nixos
-  ];
-
   virtualisation.appvm = {
     enable = true;
     user = "${username}";
   };
-
-This is a temporary solution until appvm is upstreamed to nixpkgs or Nix flakes are released.
 
 Ubuntu 20.04
 ------
