@@ -1,7 +1,7 @@
 { pkgs ? import <nixpkgs> {}, ... }:
 let
-  virt-manager-without-menu = pkgs.virt-viewer.overrideAttrs(x: {
-    patches = [
+  virt-manager-without-menu = pkgs.virt-viewer.overrideAttrs (oldAttrs: {
+    patches = oldAttrs.patches ++ [
       ./patches/0001-Remove-menu-bar.patch
       ./patches/0002-Do-not-grab-keyboard-mouse.patch
       ./patches/0003-Use-name-of-appvm-applications-as-a-title.patch
